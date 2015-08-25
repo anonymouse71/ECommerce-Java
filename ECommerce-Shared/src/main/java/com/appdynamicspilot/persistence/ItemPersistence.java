@@ -40,7 +40,6 @@ public class ItemPersistence extends BasePersistenceImpl {
      * Connects to Oracle in case of slow fire
      * @return List<Item>
      */
-    @SuppressWarnings("unchecked")
     public List<Item> getAllItems() {
         List<Item> itemList = getEntityManager().createQuery("SELECT i FROM Item i ORDER BY i.id").getResultList();
 

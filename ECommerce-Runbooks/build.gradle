@@ -2,11 +2,11 @@ apply plugin: 'java'
 apply plugin: 'idea'
 apply plugin:'application'
 
-sourceCompatibility=1.6
+sourceCompatibility=1.7
 
 idea {
     module {
-        jdkName = "1.6"
+        jdkName = "1.7"
     }
 }
 

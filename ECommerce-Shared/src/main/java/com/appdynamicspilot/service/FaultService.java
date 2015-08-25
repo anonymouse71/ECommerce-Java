@@ -36,5 +36,9 @@ public class FaultService implements FaultServiceInterface {
         return faultPersistence.getAllFaultsByUser(userName);
     }
 
+    public  List<Fault> getAllFaults(){
+        return faultPersistence.getAllFaults();
+    }
+
     public int deleteFaults(String userName, String faultName) { return faultPersistence.deleteFaults(userName,faultName);}
 }

@@ -80,6 +80,7 @@ public class Carts {
         if (id == TITLE_TO_CAUSE_SLOWDOWN) {
             causeContention();
         }
+        String username = "";
         String sessionId = req.getHeader("JSESSIONID");
         HttpSession session = req.getSession();
         Cart cart = (Cart) session.getAttribute("CART");
@@ -90,15 +91,25 @@ public class Carts {
         User user = (User) req.getSession(true).getAttribute("USER");
 
         if (user == null) {
-            String username = req.getHeader("USERNAME");
+            username = req.getHeader("USERNAME");
             user = getUserService().getMemberByLoginName(username);
         }
-        cart.setUser(user);
-        cart.addItem(item);
-        //trigger the mdic
-        cart.getCartTotal();
-        cart.setUser(user);
-        getCartService().saveItemInCart(cart);
+        /**
+         * Save or Update Item in Cart
+         */
+        cart = getCartService().getCartByUser(user.getId());
+        if (cart == null) {
+            cart = new Cart();
+            cart.setUser(user);
+            cart.addItem(item);
+            getCartService().saveItemInCart(cart);
+        } else if (cart != null && !cart.findItem(item)) {
+            cart.setUser(user);
+            cart.addItem(item);
+            getCartService().updateItemInCart(cart);
+        } else {
+            log.info("item already exists " + username + " " + id);
+        }
         slowQuery(ONE_SECOND);
         session.setAttribute("CART", cart);
         response.setHeader("cart-size", String.valueOf(getCartService().getCartSize(user.getId())));
@@ -109,7 +120,7 @@ public class Carts {
     }
 
     private void causeContention() {
-        for (int i=0;i< 10; i++) {
+        for (int i = 0; i < 10; i++) {
             Thread t = new Thread(new Runnable() {
                 @Override
                 public void run() {
@@ -124,7 +135,7 @@ public class Carts {
         IMetricAndEventReporter reporter = AgentDelegate.getMetricAndEventPublisher();
         Connection connection = null;
         CallableStatement stmt = null;
-        reporter.reportSumMetric("ECommerce Demo|Slow Query Calls|Call Count",1);
+        reporter.reportSumMetric("ECommerce Demo|Slow Query Calls|Call Count", 1);
         try {
             connection = getOracleDataSource().getConnection();
             stmt = connection.prepareCall("{call addToCart(?)}");
@@ -132,9 +143,15 @@ public class Carts {
             stmt.execute();
         } catch (SQLException sqle) {
 
-        }   finally {
-            if (stmt != null) try{connection.close();} catch (Exception e){}
-            if (connection != null) try{connection.close();} catch (Exception e){}
+        } finally {
+            if (stmt != null) try {
+                connection.close();
+            } catch (Exception e) {
+            }
+            if (connection != null) try {
+                connection.close();
+            } catch (Exception e) {
+            }
         }
 
     }
@@ -170,7 +187,7 @@ public class Carts {
     public Response deleteItemInCart(@Context HttpServletRequest req, @Context HttpServletResponse response, @PathParam("id") Long id) {
         String username = req.getHeader("username");
         if (username != null) {
-            getCartService().deleteItemInCart(username,id);
+            getCartService().deleteItemInCart(username, id);
         }
 
         return Response.noContent().build();
@@ -200,7 +217,7 @@ public class Carts {
 
                 //TODO See if this is used for any messaging
     /*			OrderDetail orderDetail = new OrderDetail();
-				orderDetail.setOrderId(orderId);
+                orderDetail.setOrderId(orderId);
 				orderDetail.setId(cart.getItem().getId());
 				orderDetail.setTitle(cart.getItem().getTitle());
 	*/

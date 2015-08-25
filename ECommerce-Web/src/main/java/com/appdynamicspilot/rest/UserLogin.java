@@ -54,17 +54,11 @@ public class UserLogin {
     @Consumes("application/x-www-form-urlencoded")
     @Produces(MediaType.TEXT_PLAIN)
     public String validateUser(@Context HttpServletRequest req, @FormParam("username") String name, @FormParam("password") String password) {
-        logger.info("login check");
         HttpSession session = req.getSession(true);
         UserService userSvc = getUserService();
-        logger.info("userSvc" + userSvc);
-        logger.info("name" + name);
-        logger.info("password" + password);
         boolean valid = userSvc.validateMember(name, password.trim());
-        logger.debug("*** Is user valid** " + valid);
         if (valid) {
             User user = userSvc.getMemberByLoginName(name);
-            logger.debug("*** user email is ** " + user.getEmail());
             session.setAttribute("USER", user);
         }
 

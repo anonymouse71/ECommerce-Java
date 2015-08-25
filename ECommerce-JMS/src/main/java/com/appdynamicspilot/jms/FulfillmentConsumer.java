@@ -20,21 +20,13 @@ import com.appdynamicspilot.model.FulfillmentOrder;
 
 import javax.jms.Message;
 import javax.jms.MessageListener;
-import java.io.StringWriter;
-import java.net.URL;
-import java.io.InputStream;
-import java.util.logging.Logger;
 import javax.jms.ObjectMessage;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
-import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.Marshaller;
+import java.util.logging.Logger;
 
 /**
  * Created by aleftik on 12/2/14.
