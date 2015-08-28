@@ -6,7 +6,7 @@ allprojects {
 	repositories {
 		mavenCentral()
 	}
-	sourceCompatibility = 6;
+	sourceCompatibility = 7;
 
 }
 

@@ -13,5 +13,7 @@ public interface FaultServiceInterface {
 
     List<Fault> getAllFaultsByUser(String userName);
 
+    List<Fault> getAllFaults();
+
     int deleteFaults(String userName, String faultName);
 }

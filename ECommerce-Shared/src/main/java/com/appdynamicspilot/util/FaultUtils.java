@@ -3,6 +3,9 @@ package com.appdynamicspilot.util;
 import com.appdynamicspilot.faultinjection.FaultInjection;
 import com.appdynamicspilot.faultinjection.FaultInjectionFactory;
 import com.appdynamicspilot.model.Fault;
+import com.appdynamicspilot.service.FaultService;
+import com.appdynamicspilot.service.FaultServiceInterface;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 import java.sql.Timestamp;
@@ -17,21 +20,16 @@ public class FaultUtils {
 
     private static final Logger log = Logger.getLogger(FaultUtils.class.getName());
 
-
     /**
      * Injects Faults
      *
      * @param lsFault - List of faults available
      */
-    public void injectFault(List<Fault> lsFault, boolean injectNow) {
+    public String injectFault(List<Fault> lsFault) {
         for (Fault fault : lsFault) {
-            //Parsing time frame and calling the inject fault method based on time and user.
-            if (!injectNow && checkTime(fault.getTimeframe())) {
-                instantiateFault(fault);
-            } else if (injectNow) {
-                instantiateFault(fault);
-            }
+            return instantiateFault(fault);
         }
+        return "Fault list is empty";
     }
 
     /**
@@ -41,7 +39,7 @@ public class FaultUtils {
      * @return
      * @throws Exception
      */
-    private boolean checkTime(String timeFrame) {
+    public boolean checkTime(String timeFrame) {
 
         //Parsing the date according to Hours, Minutes set on the UI and setting the Locale to US.
         SimpleDateFormat parser = new SimpleDateFormat("HH:mm", Locale.US);
@@ -58,6 +56,7 @@ public class FaultUtils {
             log.info("parsedEndTime" + parsedEndTime.toString());
             Date parsedCurrentTime = parser.parse(currentTime);
             log.info("parsedCurrentTime" + parsedCurrentTime.toString());
+            log.info(parsedCurrentTime.after(parsedStartTime) && parsedCurrentTime.before(parsedEndTime));
 
             //returns only if the time is within the time range selected on the UI.
             if (parsedCurrentTime.after(parsedStartTime) && parsedCurrentTime.before(parsedEndTime)) {
@@ -98,13 +97,14 @@ public class FaultUtils {
      *
      * @param fault
      */
-    private void instantiateFault(Fault fault) {
+    private String instantiateFault(Fault fault) {
         //Creating Fault injection object parsing the bugName removing spaces.
         FaultInjectionFactory fiFactory = new FaultInjectionFactory();
         FaultInjection fi = fiFactory.getFaultInjection(fault.getBugname().replace(" ", ""));
         if (fi != null) {
-            fi.injectFault();
+            return fi.injectFault();
         }
+        return "Fault Name is appropriate";
     }
 
     /**
@@ -117,7 +117,7 @@ public class FaultUtils {
         //Check if cache already exists
         if (CacheManager.getInstance().get(userName + "faultCache") != null) {
             List<Fault> lsFaultFromCache = (List<Fault>) CacheManager.getInstance().get(userName + "faultCache");
-            if(lsFaultFromCache.size() > 0) {
+            if (lsFaultFromCache.size() > 0) {
                 //If yes, get the existing list and add it to the newly created list
                 for (Fault fault : lsFault) {
                     lsFaultFromCache.add(fault);
@@ -154,7 +154,7 @@ public class FaultUtils {
 
         if (CacheManager.getInstance().get(userName + "faultCache") != null) {
             List<Fault> lsFaultFromCache = (List<Fault>) CacheManager.getInstance().get(userName + "faultCache");
-            if(lsFaultFromCache.size() > 0) {
+            if (lsFaultFromCache.size() > 0) {
                 for (int i = 0; i < lsFaultFromCache.size(); i++) {
                     if (lsFaultFromCache.get(i).getUsername().equals(userName.trim()) && lsFaultFromCache.get(i).getBugname().equals(faultName.trim())) {
                         lsFaultFromCache.remove(i);

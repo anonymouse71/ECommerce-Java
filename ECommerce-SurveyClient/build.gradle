@@ -1,29 +1,36 @@
 apply plugin: 'java'
 apply plugin: 'idea'
-apply plugin:'application'
+apply plugin: 'application'
 
-sourceCompatibility=1.7
+sourceCompatibility = 1.7
+version = '1.0'
 
 idea {
     module {
         jdkName = "1.7"
     }
 }
-dependencies {
-    compile project(':ECommerce-Shared');
-    compile 'com.amazonaws:aws-java-sdk-sqs:1.9.30';
+
+repositories {
+    mavenCentral()
 }
+
+dependencies {
+    testCompile group: 'junit', name: 'junit', version: '4.11';
+    compile 'javax.jms:javax.jms-api:2.0';
+    compile 'org.apache.activemq:activemq-core:5.7.0';
+}
+
 sourceSets {
     main {
         java {
             srcDir 'src'
         }
+        output.resourcesDir = "build/classes/main/com/appdynamicspilot/survey"
     }
 }
 
-
-mainClassName = 'com.appdynamicspilot.sqs.FulfillmentClient';
-
+mainClassName = 'com.appdynamicspilot.survey.customerSurvey';
 
 task uberjar(type: Jar, dependsOn: 'build') {
     from files(sourceSets.main.output.classesDir)
@@ -33,5 +40,5 @@ task uberjar(type: Jar, dependsOn: 'build') {
     manifest {
         attributes 'Main-Class': mainClassName
     }
-
 }
+

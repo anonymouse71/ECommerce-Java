@@ -40,11 +40,20 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
+import java.util.UUID;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Path("/json/cart")
 public class Carts {
+    /**
+     * Logging
+     */
     private static final Logger log = Logger.getLogger(Carts.class.getName());
-    // Not used in rest
+
+    /**
+     * JMS queues
+     */
     @Resource(name = "OrderQueue")
     private Queue orderQueue;
     private MessageProducer messageProducer;
@@ -110,37 +119,6 @@ public class Carts {
                 user = getUserService().getMemberByLoginName(username);
             }
 
-            log.info("fault username : " + username);
-
-            /**
-             *  Reading time range, user name and fault type.
-             *  Applicable only for Fault Injection
-             */
-            boolean cache = true;
-            FaultUtils faultUtils = new FaultUtils();
-            if (!StringUtils.isBlank(username)) {
-                if (faultUtils.readCaching(username) != null) {
-                    List<Fault> lsFaultFromCache = faultUtils.readCaching(username);
-                    if (lsFaultFromCache.size() > 0 && lsFaultFromCache.get(0).getUsername().trim().equalsIgnoreCase(username.trim())) {
-                        log.info("From Caching , Fault size: " + lsFaultFromCache.size());
-                        log.info(lsFaultFromCache.get(0).getUsername());
-                        faultUtils.injectFault(lsFaultFromCache, false);
-                    } else {
-                        cache = false;
-                    }
-                } else {
-                    cache = false;
-                }
-                if(!cache){
-                    List<Fault> lsFault = getFIBugService().getAllFaultsByUser(username);
-                    if (lsFault != null && lsFault.size() > 0 && lsFault.get(0).getUsername().trim().equalsIgnoreCase(username.trim())) {
-                        log.info("From DB , Fault size: " + lsFault.size());
-                        log.info(lsFault.get(0).getUsername());
-                        faultUtils.injectFault(lsFault, false);
-                    }
-                }
-            }
-
             /**
              * Save or Update Item in Cart
              */
@@ -150,10 +128,12 @@ public class Carts {
                 cart.setUser(user);
                 cart.addItem(item);
                 getCartService().saveItemInCart(cart);
-            } else {
+            } else if (cart != null && !cart.findItem(item)) {
                 cart.setUser(user);
                 cart.addItem(item);
                 getCartService().updateItemInCart(cart);
+            } else {
+                log.info("item already exists " + username + " " + id);
             }
             response.setCartSize(String.valueOf(cart.getCartSize()));
             response.setCartTotal(cart.getCartTotal());
@@ -241,8 +221,8 @@ public class Carts {
     @Produces(MediaType.TEXT_PLAIN)
     public String checkout(@Context HttpServletRequest req) throws Exception {
         User user = (User) req.getSession(true).getAttribute("USER");
+        String username = req.getHeader("USERNAME");
         if (user == null) {
-            String username = req.getHeader("USERNAME");
             if (username == null) {
                 return "User not logged in. Nothing to checkout.";
             } else {
@@ -276,6 +256,7 @@ public class Carts {
                 getMessageProducer().sendTextMessageWithOrderId();
                 //Removing items from cart, if success
                 getCartService().deleteCartItems(user.getId());
+                log.info("Total amount is $" + cart.getCartTotal() + " Order ID(s) for your order(s) : " + orderIds);
                 return "Total amount is $" + cart.getCartTotal() + " Order ID(s) for your order(s) : " + orderIds;
             } else {
                 if (getMessageProducer() != null) {

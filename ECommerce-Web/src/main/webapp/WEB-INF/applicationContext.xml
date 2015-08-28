@@ -87,28 +87,6 @@
        <property name="dataSource" ref="oraDataSource"/>
    </bean>
 
-    <bean id="mailerServiceTarget" class="com.appdynamicspilot.service.MailSender">
-       <property name="user" value="${mail.username}" />
-       <property name="password" value="${mail.password}" />
-       <property name="fromAddress" value="${mail.default.from}" />
-       <property name="host" value="${mail.host}" />
-       <property name="port" value="${mail.port}" />
-   </bean>
-
-   <bean id="mailerService" class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
-      <property name="transactionManager"><ref bean="transactionManager"/></property>
-      <property name="target"><ref local="mailerServiceTarget"/></property>
-      <property name="proxyTargetClass"><value>true</value></property>
-      <property name="transactionAttributes">
-           <props>
-              <prop key="get*">PROPAGATION_SUPPORTS</prop>
-              <prop key="save*">PROPAGATION_REQUIRED</prop>
-              <prop key="update*">PROPAGATION_REQUIRED</prop>
-              <prop key="delete*">PROPAGATION_REQUIRED</prop>
-               <prop key="*">PROPAGATION_REQUIRED</prop>
-           </props>
-      </property>
-   </bean>
 
    <bean id="userPersistence"
          class="com.appdynamicspilot.persistence.UserPersistence" parent="dbProvider">
@@ -192,26 +170,6 @@
           class="com.appdynamicspilot.service.FaultService">
         <property name="faultPersistence" ref="faultPersistence"/>
     </bean>
-
-    <!--<bean id="cartService"-->
-        <!--class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">-->
-       <!--<property name="transactionManager"><ref bean="transactionManager"/></property>-->
-       <!--<property name="target"><ref local="cartServiceTarget"/></property>-->
-       <!--<property name="proxyTargetClass"><value>true</value></property>-->
-       <!--<property name="transactionAttributes">-->
-            <!--<props>-->
-               <!--<prop key="get*">PROPAGATION_SUPPORTS</prop>-->
-               <!--<prop key="save*">PROPAGATION_REQUIRED</prop>-->
-               <!--<prop key="update*">PROPAGATION_REQUIRED</prop>-->
-               <!--<prop key="delete*">PROPAGATION_REQUIRED</prop>-->
-				<!--<prop key="*">PROPAGATION_REQUIRED</prop>-->
-            <!--</props>-->
-       <!--</property>-->
-    <!--</bean>-->
-    
-     <bean id="mailService" class="com.appdynamicspilot.service.MailService">
-     	<property name="mailerService" ref="mailerService"/>
-     </bean>
 	           
 	 <bean id="soapUtil" class="com.appdynamicspilot.webserviceclient.SoapUtils">
      	<property name="axisUrl">
