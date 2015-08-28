@@ -55,7 +55,7 @@ public class OrderDaoImpl implements OrderDao {
 	}
 
 	public Long createOrder(OrderRequest orderRequest) throws InventoryServerException {
-		
+
     	InventoryItem item = getEntityManager().find(InventoryItem.class,orderRequest.getItemId());
 
     	/**
