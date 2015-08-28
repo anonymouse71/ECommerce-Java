@@ -22,7 +22,7 @@ public class OrderServiceImpl implements OrderService{
 	
 	public Long createOrder(OrderRequest orderRequest) {
 		
-		log.info("creating order with order request: " +orderRequest.toString());
+		log.info("creating order with order request: " +orderRequest.getItemId());
 		try {	
 			return orderDao.createOrder(orderRequest);
 		} catch (InventoryServerException e) {
@@ -35,13 +35,13 @@ public class OrderServiceImpl implements OrderService{
 		OrderRequest orderRequest = new OrderRequest();
 		orderRequest.setItemId(itemId);
 		orderRequest.setQuantity(quantity);
-		log.info("creating order with request: " +orderRequest.toString());
+		log.info("creating order with request: " +orderRequest.getItemId());
 		
 		try{
 			return orderDao.createOrder(orderRequest);
 		}catch(Exception e){
 			e.printStackTrace();	
-			log.error("Error in creating order [" +orderRequest.toString() + "]");
+			log.error("Error in creating order [" +orderRequest.getItemId() + "]");
 		}
 		
 		return (long) 0;

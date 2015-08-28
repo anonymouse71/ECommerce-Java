@@ -48,6 +48,7 @@ public class QueryExecutor {
         Connection con = getMockDBConnection();
         if(con != null){
             try{
+
                 Statement stmt = con.createStatement();
                 String query = "SELECT * FROM user WHERE FIRST_NAME = 'sid'";
                 long startT = System.currentTimeMillis();

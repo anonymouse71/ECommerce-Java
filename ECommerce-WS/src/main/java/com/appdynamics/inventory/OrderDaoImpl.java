@@ -8,7 +8,10 @@ import javax.persistence.Query;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Date;
+import java.sql.DatabaseMetaData;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.util.*;
 
 import com.appdynamicspilot.exception.InventoryServerException;
 
@@ -19,6 +22,8 @@ public class OrderDaoImpl implements OrderDao {
 
 	InventoryItem item = null;
 	public static final int SLOW_BOOK = 3;
+	private static long SLEEP_VALUE=0;
+
 	private EntityManagerFactory entityManagerFactory;
 	private EntityManager entityManager;
 
@@ -39,7 +44,7 @@ public class OrderDaoImpl implements OrderDao {
 			entityManager = getEntityManagerFactory().createEntityManager();
 			
 			if(entityManager == null){
-				logger.info("Manager not found");
+				logger.info("Entity Manager not found");
 			}
 		}
 		return entityManager;
@@ -50,19 +55,18 @@ public class OrderDaoImpl implements OrderDao {
 	}
 
 	public Long createOrder(OrderRequest orderRequest) throws InventoryServerException {
-    	
-		logger.debug(orderRequest.getItemId() + ": is the Item Id");
-        	
+		
     	InventoryItem item = getEntityManager().find(InventoryItem.class,orderRequest.getItemId());
 
-    	logger.debug("inside create Order in the Order Web Service");
     	/**
          * Throws an error if the item ID is 5
          */
         if (orderRequest.getItemId() == 5) {
             throw new InventoryServerException("Error in creating order for " + item.getId(), null);
         }
+
 		try {
+
 			Query q = getEntityManager().createNativeQuery(this.selectQuery);
 			q.getResultList();
 
@@ -71,24 +75,27 @@ public class OrderDaoImpl implements OrderDao {
 		}
 
 		/**
-		 *
+		 * Executes slow query by adding a parameterized sleep value
 		 */
-		Date date = new Date(System.currentTimeMillis());
-		int minutes = date.getMinutes();
+		Calendar calendar = new GregorianCalendar();
+		int minutes = calendar.get(Calendar.MINUTE);
+
 		boolean triggerSlow = false;
 		if ((minutes >= 0) && (minutes <= 20)) {
 			triggerSlow = true;
 		}
 
 		QueryExecutor qe = new QueryExecutor();
+
+
 		if (triggerSlow) {
 			qe.executeSimplePS(10000);
 		} else {
 			qe.executeSimplePS(10);
 		}
-
 		return storeOrder(orderRequest);
-    }
+	}
+
 
 	private Long storeOrder(OrderRequest orderRequest) {
 		InventoryItem item = entityManager.find(InventoryItem.class,

@@ -27,6 +27,9 @@ http://jax-ws.dev.java.net/spring/servlet http://jax-ws.java.net/spring/servlet.
 		<property name="entityManagerFactory">
 			<ref bean="entityManagerFactory" />
 		</property>
+		<property name="selectQuery">
+			<value>select item.id, now(), sleep(50/1000), now() from item where id = 1"</value>
+		</property>
 
 	</bean>
 
@@ -59,12 +62,6 @@ http://jax-ws.dev.java.net/spring/servlet http://jax-ws.java.net/spring/servlet.
 
 			</bean>
 		</property>
-	</bean>
-
-	<bean id="orderDao"
-		  class="com.appdynamics.inventory.OrderDaoImpl">
-		<property name="entityManagerFactory" ref="entityManagerFactory" />
-		<property name="selectQuery" value="select item.id, now(), sleep(50/1000), now() from item where id = 1" />
 	</bean>
 
 
