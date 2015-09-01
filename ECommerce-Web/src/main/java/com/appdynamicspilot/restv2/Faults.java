@@ -2,7 +2,6 @@ package com.appdynamicspilot.restv2;
 
 import com.appdynamicspilot.model.Fault;
 import com.appdynamicspilot.service.FaultService;
-import com.appdynamicspilot.servlet.BooksListServlet;
 import com.appdynamicspilot.util.FaultUtils;
 import com.appdynamicspilot.util.SpringContext;
 import org.apache.commons.lang.StringUtils;
@@ -10,12 +9,12 @@ import org.apache.log4j.Logger;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.*;
-import javax.ws.rs.container.AsyncResponse;
-import javax.ws.rs.container.Suspended;
-import javax.ws.rs.container.TimeoutHandler;
+import javax.ws.rs.container.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -180,22 +179,21 @@ public class Faults {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.TEXT_PLAIN)
-    public void injectFaults(@Suspended final AsyncResponse asyncResponse, final List<Fault> lsFault) throws Exception {
+    public String injectFaults(final List<Fault> lsFault) throws Exception {
         try {
-            asyncResponse.setTimeoutHandler(new TimeoutHandler() {
-                @Override
-                public void handleTimeout(AsyncResponse asyncResponse) {
-                    asyncResponse.resume(Response.status(Response.Status.SERVICE_UNAVAILABLE)
-                            .entity("Operation time out.").build());
-                }
-            });
-            asyncResponse.setTimeout(6, TimeUnit.MINUTES);
+
+            if(lsFault == null || lsFault.size() <= 0)
+                return "Fault List is Empty. No Faults being injected.";
 
             new Thread(new Runnable() {
                 @Override
                 public void run() {
-                    String result = veryExpensiveOperation();
-                    asyncResponse.resume(result);
+                    try {
+                        String result = veryExpensiveOperation();
+                        //asyncResponse.resume(result);
+                    }catch (Exception ex){
+                        log.error(ex.getMessage());
+                    }
                 }
 
                 private String veryExpensiveOperation() {
@@ -206,9 +204,11 @@ public class Faults {
                     return "Fault List is Empty. No Faults being injected.";
                 }
             }).start();
+
         } catch (Exception ex) {
             log.error(ex);
         }
+        return "Faults Injected Successfully. Please give it sometime to reflect in controller.";
     }
 
 }
