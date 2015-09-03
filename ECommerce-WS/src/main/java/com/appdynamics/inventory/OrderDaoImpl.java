@@ -42,19 +42,8 @@ public class OrderDaoImpl implements OrderDao {
             }
 
             logger.info("Querying oracle db - inventory");
-            Date date = new Date(System.currentTimeMillis());
-            int minutes = date.getMinutes();
-            boolean triggerSlow = false;
-            if ((minutes >= 0) && (minutes <= 20)) {
-                triggerSlow = true;
-            }
-
-            QueryExecutor qe = new QueryExecutor();
-            if (triggerSlow) {
-                qe.executeSimplePS(10000);
-            } else {
-                qe.executeSimplePS(10);
-            }
+            QueryExecutor oracleItems = (QueryExecutor) SpringContext.getBean("queryExecutor");
+            oracleItems.executeOracleQuery();
 
             if (orderRequest != null)
                 return processOrder(orderRequest);

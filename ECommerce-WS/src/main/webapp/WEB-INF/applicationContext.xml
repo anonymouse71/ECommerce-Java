@@ -18,6 +18,8 @@ http://jax-ws.dev.java.net/spring/servlet http://jax-ws.java.net/spring/servlet.
 		</wss:service>
 	</wss:binding>
 
+	<bean id="springContext" class="com.appdynamicspilot.util.SpringContext" />
+
 	<bean id="orderService" class="com.appdynamics.inventory.OrderServiceImpl">
 		<property name="orderDao" ref="OrderDao" />
 	</bean>
@@ -81,6 +83,20 @@ http://jax-ws.dev.java.net/spring/servlet http://jax-ws.java.net/spring/servlet.
 		</property>
 
 	</bean>
+
+	<bean id="oraDataSource" class="org.springframework.jndi.JndiObjectFactoryBean">
+		<property name="jndiName">
+			<value>java:comp/env/jdbc/OracleECommerceDB</value>
+		</property>
+	</bean>
+
+	<bean id="queryExecutor" class="com.appdynamics.inventory.QueryExecutor">
+		<property name="oracleQueryString">
+			<value>${oracle.queryString}</value>
+		</property>
+		<property name="dataSource" ref="oraDataSource"/>
+	</bean>
+
 
 	<bean id="transactionManager" class="org.springframework.orm.jpa.JpaTransactionManager">
 		<property name="entityManagerFactory" ref="entityManagerFactory" />
