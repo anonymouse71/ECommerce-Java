@@ -1,156 +1,115 @@
 package com.appdynamics.inventory;
 
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.EntityTransaction;
-import javax.persistence.Query;
-
+import com.appdynamicspilot.exception.InventoryServerException;
+import com.appdynamicspilot.util.SpringContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.sql.DatabaseMetaData;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.util.*;
-
-import com.appdynamicspilot.exception.InventoryServerException;
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Query;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.util.Date;
 
 public class OrderDaoImpl implements OrderDao {
 
-	private Logger logger = LoggerFactory.getLogger(OrderDaoImpl.class);
-	
+    private Logger logger = LoggerFactory.getLogger(OrderDaoImpl.class);
+    private EntityManagerFactory entityManagerFactory;
+    private EntityManager entityManager;
 
-	InventoryItem item = null;
-	public static final int SLOW_BOOK = 3;
-	private static long SLEEP_VALUE=0;
+    private String selectQuery = null;
 
-	private EntityManagerFactory entityManagerFactory;
-	private EntityManager entityManager;
+    public EntityManagerFactory getEntityManagerFactory() {
+        return entityManagerFactory;
+    }
 
-	private String selectQuery = null;
+    public void setEntityManagerFactory(EntityManagerFactory entityManagerFactory) {
+        this.entityManagerFactory = entityManagerFactory;
+    }
 
-	public EntityManagerFactory getEntityManagerFactory() {
-		return entityManagerFactory;
-	}
+    public void setSelectQuery(String selectQuery) {
+        this.selectQuery = selectQuery;
+    }
 
-	public void setEntityManagerFactory(
-			EntityManagerFactory entityManagerFactory) {
-		this.entityManagerFactory = entityManagerFactory;
-	}
+    public Long createOrder(OrderRequest orderRequest) throws InventoryServerException {
+        try {
+            EntityManager entityManager = getEntityManagerFactory().createEntityManager();
+            if (entityManager != null) {
+                Query q = entityManager.createNativeQuery(this.selectQuery);
+                q.getResultList();
+                entityManager.close();
+            }
 
-	public synchronized EntityManager getEntityManager() {
-		if (entityManager == null) {
-			
-			entityManager = getEntityManagerFactory().createEntityManager();
-			
-			if(entityManager == null){
-				logger.info("Entity Manager not found");
-			}
-		}
-		return entityManager;
-	}
+            logger.info("Querying oracle db - inventory");
+            Date date = new Date(System.currentTimeMillis());
+            int minutes = date.getMinutes();
+            boolean triggerSlow = false;
+            if ((minutes >= 0) && (minutes <= 20)) {
+                triggerSlow = true;
+            }
 
-	public void setEntityManager(EntityManager entityManager) {
-		this.entityManager = entityManager;
-	}
+            QueryExecutor qe = new QueryExecutor();
+            if (triggerSlow) {
+                qe.executeSimplePS(10000);
+            } else {
+                qe.executeSimplePS(10);
+            }
 
-	public Long createOrder(OrderRequest orderRequest) throws InventoryServerException {
+            if (orderRequest != null)
+                return processOrder(orderRequest);
+            else
+                logger.info("OrderRequest is null");
 
-    	InventoryItem item = getEntityManager().find(InventoryItem.class,orderRequest.getItemId());
-
-    	/**
-         * Throws an error if the item ID is 5
-         */
-        if (orderRequest.getItemId() == 5) {
-            throw new InventoryServerException("Error in creating order for " + item.getId(), null);
+        } catch (Exception e) {
+            logger.error(e.getMessage());
+            StringWriter writer = new StringWriter();
+            PrintWriter pw = new PrintWriter(writer);
+            e.printStackTrace(pw);
+            String errorDetail = writer.toString();
+            logger.error(errorDetail);
         }
+        return new Long(0);
+    }
 
-		try {
+    private Long processOrder(OrderRequest orderRequest) {
+        try {
+            EntityManager entityManager = getEntityManagerFactory().createEntityManager();
+            if (entityManager != null) {
+                InventoryItem item = entityManager.find(InventoryItem.class,
+                        orderRequest.getItemId());
 
-			Query q = getEntityManager().createNativeQuery(this.selectQuery);
-			q.getResultList();
+                if (item != null) {
+                    Order order = new Order(orderRequest, item);
+                    if (order != null) {
+                        order.setQuantity(orderRequest.getQuantity());
 
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+                        logger.info("order stored is: " + order.getId() + " " + order.getQuantity() + " " + order.getCreatedOn());
 
-		/**
-		 * Executes slow query by adding a parameterized sleep value
-		 */
-		Calendar calendar = new GregorianCalendar();
-		int minutes = calendar.get(Calendar.MINUTE);
+                        entityManager.getTransaction().begin();
+                        entityManager.persist(order);
+                        entityManager.getTransaction().commit();
 
-		boolean triggerSlow = false;
-		if ((minutes >= 0) && (minutes <= 20)) {
-			triggerSlow = true;
-		}
+                        Thread.sleep(500);
 
-		QueryExecutor qe = new QueryExecutor();
+                        entityManager.getTransaction().begin();
+                        entityManager.remove(order);
+                        entityManager.getTransaction().commit();
 
-
-		if (triggerSlow) {
-			qe.executeSimplePS(10000);
-		} else {
-			qe.executeSimplePS(10);
-		}
-		return storeOrder(orderRequest);
-	}
-
-
-	private Long storeOrder(OrderRequest orderRequest) {
-		InventoryItem item = entityManager.find(InventoryItem.class,
-				orderRequest.getItemId());
-
-		Order order = new Order(orderRequest, item);
-		
-		logger.info("order stored is: " +order.id + " " +order.quantity + " " +order.createdOn);
-		
-		order.setQuantity(orderRequest.getQuantity());
-		
-		persistOrder(order);
-		
-		// deleting the order to reduce size of data
-		removeOrder(order);
-		return order.getId();
-	}
-
-	private void persistOrder(Order order) {
-		EntityTransaction txn = getEntityManager().getTransaction();
-		
-		
-		try {
-			txn.begin();
-			entityManager.persist(order);
-		} catch (Exception ex) {
-			logger.error(ex.toString());
-			txn.rollback();
-		} finally {
-			if (!txn.getRollbackOnly()) {
-				txn.commit();
-			}
-		}
-	}
-
-	private void removeOrder(Order order) {
-		EntityTransaction txn = getEntityManager().getTransaction();
-		try {
-			txn.begin();
-			entityManager.remove(order);
-		} catch (Exception ex) {
-			logger.error(ex.toString());
-			txn.rollback();
-		} finally {
-			if (!txn.getRollbackOnly()) {
-				txn.commit();
-			}
-		}
-	}
-
-	/**
-	 * @param selectQuery
-	 *            the selectQuery to set
-	 */
-	public void setSelectQuery(String selectQuery) {
-		this.selectQuery = selectQuery;
-	}
+                        logger.info("order created is: " + order.getId() + " " + order.getQuantity() + " " + order.getCreatedOn());
+                        return order.getId();
+                    }
+                }
+                entityManager.close();
+            }
+        } catch (Exception e) {
+            logger.error(e.getMessage());
+            StringWriter writer = new StringWriter();
+            PrintWriter pw = new PrintWriter(writer);
+            e.printStackTrace(pw);
+            String errorDetail = writer.toString();
+            logger.error(errorDetail);
+        }
+        return new Long(0);
+    }
 }
