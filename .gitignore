@@ -16,10 +16,9 @@ build/
 .gradle/
 gradle/
 
-# Eclipse
+#maven
 .classpath
+.idea/
 .project
 .settings/
-
-#maven
 target/
