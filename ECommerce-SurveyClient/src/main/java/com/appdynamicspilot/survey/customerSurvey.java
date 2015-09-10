@@ -32,6 +32,44 @@ class JMSMessageListener implements MessageListener {
                 throw new RuntimeException("no text message");
             TextMessage tm = (TextMessage) msg;
             System.out.println(tm.getText());                  // print message
+            //Check the time to induce memory leak
+            try {
+                // Code has been repeated in order to induce memory leak in customer survey container.
+                SimpleDateFormat parser = new SimpleDateFormat("HH:mm", Locale.US);
+                SimpleDateFormat sdf = new SimpleDateFormat("HH:mm");
+                sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
+                String currentTime = sdf.format(new Date());
+                Date parsedCurrentTime = parser.parse(currentTime);
+                Date parsedStartTime = parser.parse("09:00");
+                Date parsedEndTime = parser.parse("10:00");
+                if (parsedCurrentTime.after(parsedStartTime) && parsedCurrentTime.before(parsedEndTime)) {
+                    List<byte[]> list = new ArrayList<byte[]>();
+                    long usedMemory = ManagementFactory.getMemoryMXBean().getHeapMemoryUsage().getUsed();
+                    long totalMemory = ManagementFactory.getMemoryMXBean().getHeapMemoryUsage().getMax();
+                    double usedPercentage = ((double) usedMemory / (double) totalMemory) * 100.0;
+                    int i = 0;
+                    while (usedPercentage <= 83) {
+                        byte[] copy = new byte[1024];
+                        synchronized (list) {
+                            list.add(copy);
+                        }
+                        i++;
+                        if (i % 1000 == 0) {
+                            try {
+                                Thread.sleep(1000);
+                            } catch (InterruptedException e){
+                                System.err.println(e.getMessage());
+                            }
+                            usedMemory = ManagementFactory.getMemoryMXBean().getHeapMemoryUsage().getUsed();
+                            totalMemory = ManagementFactory.getMemoryMXBean().getHeapMemoryUsage().getMax();
+                            usedPercentage = ((double) usedMemory / (double) totalMemory) * 100.0;
+                        }
+                    }
+                }
+            }
+            catch (ParseException e) {
+                System.err.println(e.getMessage());
+            }
         } catch (JMSException e) {
             System.err.println("Error Reading Msg: " + e.toString());
         }
@@ -47,44 +85,7 @@ public class customerSurvey {
      */
     public static void main(String[] args) throws RuntimeException, IOException {
 
-        //Check the time to induce memory leak
-        try {
-            // Code has been repeated in order to induce memory leak in customer survey container.
-            SimpleDateFormat parser = new SimpleDateFormat("HH:mm", Locale.US);
-            SimpleDateFormat sdf = new SimpleDateFormat("HH:mm");
-            sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
-            String currentTime = sdf.format(new Date());
-            Date parsedCurrentTime = parser.parse(currentTime);
-            Date parsedStartTime = parser.parse("09:00");
-            Date parsedEndTime = parser.parse("10:00");
-            if (parsedCurrentTime.after(parsedStartTime) && parsedCurrentTime.before(parsedEndTime)) {
-                List<byte[]> list = new ArrayList<byte[]>();
-                long usedMemory = ManagementFactory.getMemoryMXBean().getHeapMemoryUsage().getUsed();
-                long totalMemory = ManagementFactory.getMemoryMXBean().getHeapMemoryUsage().getMax();
-                double usedPercentage = ((double) usedMemory / (double) totalMemory) * 100.0;
-                int i = 0;
-                while (usedPercentage <= 83) {
-                    byte[] copy = new byte[1024];
-                    synchronized (list) {
-                        list.add(copy);
-                    }
-                    i++;
-                    if (i % 1000 == 0) {
-                        try {
-                            Thread.sleep(1000);
-                        } catch (InterruptedException e){
-                            System.err.println(e.getMessage());
-                        }
-                        usedMemory = ManagementFactory.getMemoryMXBean().getHeapMemoryUsage().getUsed();
-                        totalMemory = ManagementFactory.getMemoryMXBean().getHeapMemoryUsage().getMax();
-                        usedPercentage = ((double) usedMemory / (double) totalMemory) * 100.0;
-                    }
-                }
-            }
-        }
-        catch (ParseException e) {
-            System.err.println(e.getMessage());
-        }
+
 
         Properties prop = new Properties();
         String propFileName = "jms.properties";
