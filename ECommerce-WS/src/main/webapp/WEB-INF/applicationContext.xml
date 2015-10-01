@@ -97,7 +97,6 @@ http://jax-ws.dev.java.net/spring/servlet http://jax-ws.java.net/spring/servlet.
 		<property name="dataSource" ref="oraDataSource"/>
 	</bean>
 
-
 	<bean id="transactionManager" class="org.springframework.orm.jpa.JpaTransactionManager">
 		<property name="entityManagerFactory" ref="entityManagerFactory" />
 		<property name="dataSource" ref="dataSource" />

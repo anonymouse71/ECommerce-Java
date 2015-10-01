@@ -8,16 +8,27 @@ import org.slf4j.LoggerFactory;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Query;
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.Invocation;
+import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.util.Date;
+import java.util.Random;
 
 public class OrderDaoImpl implements OrderDao {
 
+    Client dbClient = ClientBuilder.newClient();
+    WebTarget webTarget = dbClient
+            .target("http://rds-dbwrapper:8080/rds-dbwrapper/query/execute");
+    Invocation.Builder invocationBuilder = null;
     private Logger logger = LoggerFactory.getLogger(OrderDaoImpl.class);
     private EntityManagerFactory entityManagerFactory;
     private EntityManager entityManager;
-
+    private String queryType = "join";
+    private boolean slowQueryParam;
     private String selectQuery = null;
 
     public EntityManagerFactory getEntityManagerFactory() {
@@ -35,6 +46,10 @@ public class OrderDaoImpl implements OrderDao {
     public Long createOrder(OrderRequest orderRequest) throws InventoryServerException {
         try {
             EntityManager entityManager = getEntityManagerFactory().createEntityManager();
+
+            if (orderRequest.getItemId() == 5) {
+                throw new InventoryServerException("Error in creating order for " + orderRequest.getItemId(), null);
+            }
             if (entityManager != null) {
                 Query q = entityManager.createNativeQuery(this.selectQuery);
                 q.getResultList();
@@ -49,6 +64,18 @@ public class OrderDaoImpl implements OrderDao {
                 return processOrder(orderRequest);
             else
                 logger.info("OrderRequest is null");
+
+            //Call to slow db calls
+            Random randInteger = new Random();
+            int randomizeSlowQuery = randInteger.nextInt(5);
+
+            if (randomizeSlowQuery == 0) {
+                this.slowQueryParam = true;
+                dbQuery(this.queryType, this.slowQueryParam, "oracle");
+            } else {
+                this.slowQueryParam = false;
+                dbQuery(this.queryType, this.slowQueryParam, "oracle");
+            }
 
         } catch (Exception e) {
             logger.error(e.getMessage());
@@ -100,5 +127,15 @@ public class OrderDaoImpl implements OrderDao {
             logger.error(errorDetail);
         }
         return new Long(0);
+    }
+
+    public void dbQuery(String queryType, boolean slowQueryParam, String dbName) {
+        logger.info(queryType + " " + slowQueryParam + " " + dbName);
+        WebTarget queryWebTarget = webTarget.path(queryType + "/" + slowQueryParam + "/" + dbName);
+        invocationBuilder = queryWebTarget
+                .request(MediaType.APPLICATION_JSON);
+        Response response = invocationBuilder.get();
+        logger.info("the response for the target is: " + response.getStatus());
+        logger.info(response.readEntity(String.class));
     }
 }

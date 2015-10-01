@@ -185,6 +185,8 @@ public class Faults {
             if(lsFault == null || lsFault.size() <= 0)
                 return "Fault List is Empty. No Faults being injected.";
 
+            Thread.sleep(3000);
+
             new Thread(new Runnable() {
                 @Override
                 public void run() {
@@ -197,7 +199,6 @@ public class Faults {
                 }
 
                 private String veryExpensiveOperation() {
-                    // ... very expensive operation that typically finishes within 6 minutes
                     if (lsFault != null && lsFault.size() > 0) {
                         return faultUtils.injectFault(lsFault);
                     }
