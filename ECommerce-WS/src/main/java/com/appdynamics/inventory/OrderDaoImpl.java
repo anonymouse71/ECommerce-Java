@@ -45,9 +45,8 @@ public class OrderDaoImpl implements OrderDao {
     public Long createOrder(OrderRequest orderRequest) throws InventoryServerException {
         try {
             EntityManager entityManager = getEntityManagerFactory().createEntityManager();
-
-            if (orderRequest.getItemId() == 5) {
-                logger.error("Error in creating order for " + orderRequest.getItemId());
+            if (Math.random() >= 0.7) {
+                logger.error("Error in creating order " + orderRequest.getItemId());
             }
             if (entityManager != null) {
                 Query q = entityManager.createNativeQuery(this.selectQuery);
