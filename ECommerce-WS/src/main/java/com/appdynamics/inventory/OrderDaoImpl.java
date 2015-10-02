@@ -2,8 +2,7 @@ package com.appdynamics.inventory;
 
 import com.appdynamicspilot.exception.InventoryServerException;
 import com.appdynamicspilot.util.SpringContext;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.log4j.Logger;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -24,7 +23,7 @@ public class OrderDaoImpl implements OrderDao {
     WebTarget webTarget = dbClient
             .target("http://rds-dbwrapper:8080/rds-dbwrapper/query/execute");
     Invocation.Builder invocationBuilder = null;
-    private Logger logger = LoggerFactory.getLogger(OrderDaoImpl.class);
+    private static final Logger logger = Logger.getLogger(OrderDaoImpl.class);
     private EntityManagerFactory entityManagerFactory;
     private EntityManager entityManager;
     private String queryType = "join";
@@ -48,7 +47,7 @@ public class OrderDaoImpl implements OrderDao {
             EntityManager entityManager = getEntityManagerFactory().createEntityManager();
 
             if (orderRequest.getItemId() == 5) {
-                throw new InventoryServerException("Error in creating order for " + orderRequest.getItemId(), null);
+                logger.error("Error in creating order for " + orderRequest.getItemId());
             }
             if (entityManager != null) {
                 Query q = entityManager.createNativeQuery(this.selectQuery);
