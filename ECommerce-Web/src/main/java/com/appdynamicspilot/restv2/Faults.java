@@ -185,7 +185,7 @@ public class Faults {
             if(lsFault == null || lsFault.size() <= 0)
                 return "Fault List is Empty. No Faults being injected.";
 
-            Thread.sleep(3000);
+            Thread.sleep(30000);
 
             new Thread(new Runnable() {
                 @Override
