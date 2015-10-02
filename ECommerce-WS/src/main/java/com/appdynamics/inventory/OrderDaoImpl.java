@@ -60,11 +60,6 @@ public class OrderDaoImpl implements OrderDao {
             QueryExecutor oracleItems = (QueryExecutor) SpringContext.getBean("queryExecutor");
             oracleItems.executeOracleQuery();
 
-            if (orderRequest != null)
-                return processOrder(orderRequest);
-            else
-                logger.info("OrderRequest is null");
-
             //Call to slow db calls
             Random randInteger = new Random();
             int randomizeSlowQuery = randInteger.nextInt(5);
@@ -76,6 +71,11 @@ public class OrderDaoImpl implements OrderDao {
                 this.slowQueryParam = false;
                 dbQuery(this.queryType, this.slowQueryParam, "oracle");
             }
+
+            if (orderRequest != null)
+                return processOrder(orderRequest);
+            else
+                logger.info("OrderRequest is null");
 
         } catch (Exception e) {
             logger.error(e.getMessage());
