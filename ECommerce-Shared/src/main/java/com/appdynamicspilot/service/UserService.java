@@ -49,6 +49,10 @@ public class UserService {
 		return userPersistence;
 	}
 
+	public List<User> getAllUser() {
+		return userPersistence.getAllUser();
+	}
+
 	public void setUserPersistence(UserPersistence userPersistence) {
 		this.userPersistence = userPersistence;
 	}

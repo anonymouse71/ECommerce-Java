@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+
 package com.appdynamics.inventory;
 
 import java.io.BufferedReader;
@@ -240,3 +241,4 @@ public class QueryExecutor {
     }
 
 }
+

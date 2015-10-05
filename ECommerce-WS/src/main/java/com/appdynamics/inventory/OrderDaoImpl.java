@@ -1,35 +1,34 @@
-/*
- * Copyright 2015 AppDynamics, Inc.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package com.appdynamics.inventory;
 
 import com.appdynamicspilot.exception.InventoryServerException;
+import com.appdynamicspilot.util.SpringContext;
+import org.apache.log4j.Logger;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
-import javax.persistence.EntityTransaction;
 import javax.persistence.Query;
-import org.apache.log4j.Logger;
-import java.util.Date;
-
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.Invocation;
+import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.util.Random;
 
 public class OrderDaoImpl implements OrderDao {
-    public static final int SLOW_BOOK = 3;
-    private Logger logger = Logger.getLogger(OrderDaoImpl.class);
+
+    Client dbClient = ClientBuilder.newClient();
+    WebTarget webTarget = dbClient
+            .target("http://rds-dbwrapper:8080/rds-dbwrapper/query/execute");
+    Invocation.Builder invocationBuilder = null;
+    private static final Logger logger = Logger.getLogger(OrderDaoImpl.class);
     private EntityManagerFactory entityManagerFactory;
+    private EntityManager entityManager;
+    private String queryType = "join";
+    private boolean slowQueryParam;
+    private String selectQuery = null;
 
     public EntityManagerFactory getEntityManagerFactory() {
         return entityManagerFactory;
@@ -39,102 +38,102 @@ public class OrderDaoImpl implements OrderDao {
         this.entityManagerFactory = entityManagerFactory;
     }
 
-    private EntityManager entityManager;
-
-    private String selectQuery = null;
-
-    public synchronized EntityManager getEntityManager() {
-       if (entityManager ==null) {
-          entityManager = getEntityManagerFactory().createEntityManager();
-       }
-        return entityManager;
-    }
-
-    public void setEntityManager(EntityManager entityManager) {
-        this.entityManager = entityManager;
-    }
-
-        public Long createOrder(OrderRequest orderRequest) throws InventoryServerException {
-        InventoryItem item = getEntityManager().find(InventoryItem.class,orderRequest.getItemId());
-        if (orderRequest.getItemId() == 5) {
-            throw new InventoryServerException("Error in creating order for " + item.getId(), null);
-        }
-
-
-        try {
-            Query q = getEntityManager().createNativeQuery(this.selectQuery);
-            q.getResultList();
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        /**
-         *
-         */
-        Date date = new Date(System.currentTimeMillis());
-        int minutes = date.getMinutes();
-        boolean triggerSlow = false;
-        if ((minutes >= 0) && (minutes <= 20)) {
-            triggerSlow = true;
-        }
-
-        QueryExecutor qe = new QueryExecutor();
-        if (triggerSlow) {
-            qe.executeSimplePS(10000);
-        } else {
-            qe.executeSimplePS(10);
-        }
-        return storeOrder(orderRequest);
-    }
-
-    private Long storeOrder(OrderRequest orderRequest) {
-        InventoryItem item = entityManager.find(InventoryItem.class,orderRequest.getItemId());
-        Order order = new Order(orderRequest,item);
-
-        order.setQuantity(orderRequest.getQuantity());
-        persistOrder(order);
-        //deleting the order to reduce size of data
-        removeOrder(order);
-        return order.getId();
-    }
-
-    private void persistOrder(Order order) {
-        EntityTransaction txn = getEntityManager().getTransaction();
-        try {
-            txn.begin();
-            entityManager.persist(order);
-        } catch (Exception ex) {
-             logger.error(ex);
-             txn.rollback();
-        } finally {
-            if(!txn.getRollbackOnly()) {
-               txn.commit();
-            }
-        }
-    }
-
-    private void removeOrder(Order order) {
-        EntityTransaction txn = getEntityManager().getTransaction();
-        try {
-            txn.begin();
-            entityManager.remove(order);
-        } catch (Exception ex) {
-            logger.error(ex);
-            txn.rollback();
-        } finally {
-            if(!txn.getRollbackOnly()) {
-                txn.commit();
-            }
-        }
-    }
-
-    /**
-     * @param selectQuery the selectQuery to set
-     */
     public void setSelectQuery(String selectQuery) {
         this.selectQuery = selectQuery;
     }
 
+    public Long createOrder(OrderRequest orderRequest) throws InventoryServerException {
+        try {
+            EntityManager entityManager = getEntityManagerFactory().createEntityManager();
+            if (Math.random() >= 0.7) {
+                logger.error("Error in creating order " + orderRequest.getItemId());
+            }
+            if (entityManager != null) {
+                Query q = entityManager.createNativeQuery(this.selectQuery);
+                q.getResultList();
+                entityManager.close();
+            }
 
+            logger.info("Querying oracle db - inventory");
+            QueryExecutor oracleItems = (QueryExecutor) SpringContext.getBean("queryExecutor");
+            oracleItems.executeOracleQuery();
+
+            //Call to slow db calls
+            Random randInteger = new Random();
+            int randomizeSlowQuery = randInteger.nextInt(5);
+
+            if (randomizeSlowQuery == 0) {
+                this.slowQueryParam = true;
+                dbQuery(this.queryType, this.slowQueryParam, "oracle");
+            } else {
+                this.slowQueryParam = false;
+                dbQuery(this.queryType, this.slowQueryParam, "oracle");
+            }
+
+            if (orderRequest != null)
+                return processOrder(orderRequest);
+            else
+                logger.info("OrderRequest is null");
+
+        } catch (Exception e) {
+            logger.error(e.getMessage());
+            StringWriter writer = new StringWriter();
+            PrintWriter pw = new PrintWriter(writer);
+            e.printStackTrace(pw);
+            String errorDetail = writer.toString();
+            logger.error(errorDetail);
+        }
+        return new Long(0);
+    }
+
+    private Long processOrder(OrderRequest orderRequest) {
+        try {
+            EntityManager entityManager = getEntityManagerFactory().createEntityManager();
+            if (entityManager != null) {
+                InventoryItem item = entityManager.find(InventoryItem.class,
+                        orderRequest.getItemId());
+
+                if (item != null) {
+                    Order order = new Order(orderRequest, item);
+                    if (order != null) {
+                        order.setQuantity(orderRequest.getQuantity());
+
+                        logger.info("order stored is: " + order.getId() + " " + order.getQuantity() + " " + order.getCreatedOn());
+
+                        entityManager.getTransaction().begin();
+                        entityManager.persist(order);
+                        entityManager.getTransaction().commit();
+
+                        Thread.sleep(500);
+
+                        entityManager.getTransaction().begin();
+                        entityManager.remove(order);
+                        entityManager.getTransaction().commit();
+
+                        logger.info("order created is: " + order.getId() + " " + order.getQuantity() + " " + order.getCreatedOn());
+                        return order.getId();
+                    }
+                }
+                entityManager.close();
+            }
+        } catch (Exception e) {
+            logger.error(e.getMessage());
+            StringWriter writer = new StringWriter();
+            PrintWriter pw = new PrintWriter(writer);
+            e.printStackTrace(pw);
+            String errorDetail = writer.toString();
+            logger.error(errorDetail);
+        }
+        return new Long(0);
+    }
+
+    public void dbQuery(String queryType, boolean slowQueryParam, String dbName) {
+        logger.info(queryType + " " + slowQueryParam + " " + dbName);
+        WebTarget queryWebTarget = webTarget.path(queryType + "/" + slowQueryParam + "/" + dbName);
+        invocationBuilder = queryWebTarget
+                .request(MediaType.APPLICATION_JSON);
+        Response response = invocationBuilder.get();
+        logger.info("the response for the target is: " + response.getStatus());
+        logger.info(response.readEntity(String.class));
+    }
 }

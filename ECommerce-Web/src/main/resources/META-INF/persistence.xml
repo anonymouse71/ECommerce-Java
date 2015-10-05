@@ -10,6 +10,7 @@
         <class>com.appdynamicspilot.model.Cart</class>
         <class>com.appdynamicspilot.model.Item</class>
         <class>com.appdynamicspilot.model.User</class>
+        <class>com.appdynamicspilot.model.Fault</class>
         <properties>
             <property name="eclipselink.weaving" value="false"/>
         </properties>

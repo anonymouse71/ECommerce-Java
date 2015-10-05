@@ -16,7 +16,6 @@
 
 package com.appdynamics.inventory;
 
-import com.appdynamicspilot.model.*;
 
 import javax.persistence.*;
 import java.math.BigDecimal;

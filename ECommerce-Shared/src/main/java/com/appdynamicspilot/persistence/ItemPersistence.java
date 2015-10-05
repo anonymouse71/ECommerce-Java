@@ -40,11 +40,11 @@ public class ItemPersistence extends BasePersistenceImpl {
      * Connects to Oracle in case of slow fire
      * @return List<Item>
      */
-    @SuppressWarnings("unchecked")
     public List<Item> getAllItems() {
         List<Item> itemList = getEntityManager().createQuery("SELECT i FROM Item i ORDER BY i.id").getResultList();
 
 		//DEMO-367 Calling Oracle db in certain percentage
+        //Supressed the slow query to make it generic
 		if (shouldFireSlow()) {
 			LOGGER.info("Querying oracle db");
 			if (Math.random() >= 0.7) {

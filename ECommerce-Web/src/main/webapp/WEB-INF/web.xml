@@ -8,38 +8,32 @@
 
     <resource-ref>
         <description>My datasource</description>
-        <res-ref-name>jdbc/cartDS</res-ref-name>
+        <res-ref-name>jdbc/OracleECommerceDB</res-ref-name>
         <res-type>javax.sql.DataSource</res-type>
         <res-auth>Container</res-auth>
     </resource-ref>
 
     <servlet>
         <servlet-name>Jersey-Filter</servlet-name>
-
         <servlet-class>org.glassfish.jersey.servlet.ServletContainer</servlet-class>
+        <async-supported>true</async-supported>
         <init-param>
-            <param-name>jersey.config.server.provider.classnames</param-name>
+            <param-name>jersey.config.server.provider.packages</param-name>
             <param-value>
-                com.appdynamicspilot.rest.Carts,
-                com.appdynamicspilot.rest.Items,
-                com.appdynamicspilot.rest.Ping,
-                com.appdynamicspilot.rest.CatalogRequest,
-                com.appdynamicspilot.rest.UserLogin,
-                com.appdynamicspilot.rest.Fulfillment,
-                com.appdynamicspilot.restv2.Carts,
-                com.appdynamicspilot.restv2.Items,
-                com.appdynamicspilot.restv2.Users
+                com.appdynamicspilot.rest,
+                com.appdynamicspilot.restv2
             </param-value>
+            <load-on-startup>1</load-on-startup>
         </init-param>
     </servlet>
     <servlet-mapping>
         <servlet-name>Jersey-Filter</servlet-name>
         <url-pattern>/rest/*</url-pattern>
     </servlet-mapping>
-
     <filter>
         <filter-name>emFilter</filter-name>
         <filter-class>com.appdynamicspilot.servlet.EntityManagerFilter</filter-class>
+        <async-supported>true</async-supported>
     </filter>
     <filter-mapping>
         <filter-name>emFilter</filter-name>
@@ -49,6 +43,7 @@
     <filter>
         <filter-name>struts2</filter-name>
         <filter-class>org.apache.struts2.dispatcher.ng.filter.StrutsPrepareAndExecuteFilter</filter-class>
+        <async-supported>true</async-supported>
         <init-param>
             <param-name>actionPackages</param-name>
             <param-value>com.appdynamicspilot.action</param-value>

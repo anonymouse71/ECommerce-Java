@@ -4,6 +4,16 @@ USE `appdy`;
 
 SET FOREIGN_KEY_CHECKS=0;
 
+/* Table structure for Fault Injection*/
+DROP TABLE IF EXISTS `Fault`;
+CREATE TABLE `Fault` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `bugname` varchar(100) DEFAULT NULL,
+  `username` varchar(45) DEFAULT NULL,
+  `timeframe` varchar(500) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=32 DEFAULT CHARSET=latin1;
+
 /*Table structure for table `cart` */
 DROP TABLE IF EXISTS `cart`;
 CREATE TABLE `cart` (
@@ -105,33 +115,42 @@ CREATE TABLE `user` (
 /*!40000 ALTER TABLE `user` DISABLE KEYS */;
 LOCK TABLES `user` WRITE;
 INSERT INTO `user` VALUES 
-(1,'test','appdynamics','appd','DIAMOND','San Francisco'),
-(2,'appdynamics','appdynamics','appd','PLATINUM','Paris'),
-(3,'val.chibisov@appdynamics.com','appdynamics', 'Val Chibisov', 'SILVER','San Francisco'),
-(4,'bhaskar.sunkara@appdynamics.com','appdynamics','Bhaskar Sunkara','DIAMOND','Bangalore'),
-(5,'mark.prichard@appdynamics.com','appdynamics','Mark Prichard','BRONZE','London'),
-(6,'adam.leftik@appdynamics.com','appdynamics','Adam Leftik','BRONZE','Honolulu'),
-(7,'sid.choudhury@appdynamics.com','appdynamics','Sid Choudhury','BRONZE','San Francisco'),
-(8,'rey.ong@appdynamics.com','appdynamics','Rey Ong','SILVER','San Francisco'),
-(9,'mahesh.gandhe@appdynamics.com','appdynamics','Mahesh Gandhe','SILVER','San Francisco'),
-(10,'nima haddadkaveh@appdynamics.com','appdynamics','Nima Haddakaveh','SILVER','San Francisco'),
-(11,'ariel.smollar@appdynamics.com','appdynamics','Ariel Smollar','SILVER','San Francisco'),
-(12,'amod.gupta@appdynamics.com','appdynamics','Amod Gupta','SILVER','Bangalore'),
-(13,'omed.habib@appdynamics.com','appdynamics','Omed Habib','SILVER','San Francisco'),
-(14,'ian.mcguinness@appdynamics.com','appdynamics','Ian McGuinness','SILVER','London'),
-(15,'harish.nataraj@appdynamics.com','appdynamics','Harish Nataraj','SILVER','Bangalore'),
-(16,'ian.withrow@appdynamics.com','appdynamics','Ian Withrow','SILVER','Honolulu'),
-(17,'shiv.loka@appdynamics.com','appdynamics','Shiv Loka','PLATINUM','San Francisco'),
-(18,'akankshu.dhawan@appdynamics.com','appdynamics','Akankshu Dhawan','PLATINUM','Bangalore'),
-(19,'jeff.morgan@appdynamics.com','appdynamics','Jeff Morgan','PLATINUM','San Francisco'),
-(20,'pamela.clark@appdynamics.com','appdynamics','Pamela Clark','PLATINUM','Honolulu'),
-(21,'steve.hetland@appdynamics.com','appdynamics','Steve Hetland','PLATINUM','Honolulu'),
-(22,'lynn.davidson@appdynamics.com','appdynamics','Lynn Davidson','PLATINUM','Honolulu'),
-(23,'ellen.evans@appdynamics.com','appdynamics','Ellen Evans','PLATINUM','Honolulu'),
-(24,'jacquie.finney@appdynamics.com','appdynamics','Jacquie Finney','PLATINUM','Honolulu'),
-(25,'charles.smith@appdynamics.com','appdynamics','Charles Smith','PLATINUM','Honolulu'),
-(26,'eric.mackay@appdynamics.com','appdynamics','Eric MacKay','DIAMOND','Honolulu'),
-(27,'byron.martin@appdynamics.com','appdynamics','Byron Martin','GOLD','Honolulu');
+(1,'amitabhbachchan@foobar.com','appdynamics','Amitabh Bachchan','GOLD','San Francisco'),
+(2,'christopher.lee@foobar.com','hollywoodlee','Christopher Lee','PLATINUM','Paris'),
+(3,'emilia.clarke@foobar.com','gameofthrones', 'Emilia Clarke', 'SILVER','San Francisco'),
+(4,'tom.hardy@foobar.com','jokerhardy','Tom Hardy','DIAMOND','Bangalore'),
+(5,'kate.upton@foobar.com','warofclans','Kate Upton','BRONZE','London'),
+(6,'leonardo.dicaprio@foobar.com','wolfofwallstreet','Leonardo DiCaprio','BRONZE','Honolulu'),
+(7,'brad.pitt@foobar.com','jolie','Brad Pitt','BRONZE','San Francisco'),
+(8,'jake.gyllenhaal@foobar.com','southpaw','Jake Gyllenhaal','SILVER','San Francisco'),
+(9,'steph.curry@foobar.com','winner2015','Stephen Curry','SILVER','San Francisco'),
+(10,'sachin.tendulkar@foobar.com','godofcricket','Sachin Tendulkar','SILVER','San Francisco'),
+(11,'kobe.bryant@foobar.com','allstars','Kobe Bryant','SILVER','San Francisco'),
+(12,'lebron.james@foobar.com', 'gocavs', 'Lebron James', 'PLATINUM', 'Cleveland'),
+(13,'michael.schumacher@foobar.com','circuitgod','Michael Schumacher','SILVER','Bangalore'),
+(14,'ma.lin@foobar.com','pingpong','Ma Lin','SILVER','San Francisco'),
+(15,'lin.dan@foobar.com','badminton','Lin Dan','SILVER','London'),
+(16,'tom.brady@foobar.com','patriots','Tom Brady','SILVER','New England'),
+(17,'michael.phelps@foobar.com','olympics2016','Michael Phelps','SILVER','Honolulu'),
+(18,'mark.zuckerberg@foobar.com','facebook','Mark Zuckerberg','PLATINUM','Palo Alto'),
+(19,'larry.page@foobar.com','google','Larry Page','PLATINUM','Bangalore'),
+(20,'sheryl.sandberg@foobar.com','exgoogle','Sheryl Sandberg','PLATINUM','San Francisco'),
+(21,'jeff.bezos@foobar.com','amazon','Jeff Bezos','PLATINUM','Seattle'),
+(22,'tim.cook@foobar.com','appleinc','Tim Cook','PLATINUM','Cupertino'),
+(23,'marissa.mayer@foobar.com','yahooyodel','Marissa Mayer','PLATINUM','Sunnyvale'),
+(24,'steve.jobs@foobar.com','appleforever','Steve Jobs','PLATINUM','Cupertino'),
+(25,'bill.gates@foobar.com','microsoft','Bill Gates','PLATINUM','Seattle'),
+(26,'sergey.brin@foobar.com','googleco','Sergey Brin','PLATINUM','Mountain View'),
+(27,'john.legend@foobar.com','allofme','Larry Ellison','DIAMOND','Honolulu'),
+(28,'bruno.mars@foobar.com','uptownfunk','Bruno Mars','DIAMOND','Honolulu'),
+(29, 'meg.whitman@foobar.com', 'exebay', 'Meg Whitman', 'SILVER', 'Cupertino'),
+(30, 'jp.morgan@foobar.com', 'JP Morgan', 'JP Morgan','DIAMOND' ,'New York'),
+(31, 'richard.branson@foobar.com', 'bransonamerica', 'Richard Branson', 'DIAMOND', 'New York'),
+(32, 'larry.ellison@foobar.com', 'oraclelarry', 'Larry Ellison', 'PLATINUM', 'Redwood City'),
+(33, 'jyoti.bansal@foobar.com', 'AppDynamics', 'Jyoti Bansal', 'PLATINUM', 'San Francisco'),
+(34, 'satya.nadella@foobar.com', 'SatyaMicrosoft', 'Satya Nadella', 'GOLD', 'Seattle'),
+(35, 'solomon@foobar.com', 'DockerSolomon', 'Solomon', 'SILVER', 'San Francisco');
+
 UNLOCK TABLES;
 
 /*!40101 SET NAMES utf8 */;

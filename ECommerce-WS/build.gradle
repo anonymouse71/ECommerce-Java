@@ -7,6 +7,8 @@ repositories {
 
 dependencies {
     compile project(':ECommerce-Shared');
+
+    providedCompile 'javax.servlet:javax.servlet-api:3.1.0';
     providedCompile 'javax.servlet:servlet-api:2.5';
     providedCompile 'javax.jms:jms-api:1.1-rev-1';
     providedCompile 'com.sun.mail:javax.mail:1.5.2';
@@ -15,7 +17,6 @@ dependencies {
     compile 'mysql:mysql-connector-java:5.1.33';
 
     compile 'javax.servlet:jstl:1.2';
-    compile 'javax.xml.ws:jaxws-api:2.2.11';
     compile 'commons-dbcp:commons-dbcp:1.4';
     compile 'org.apache.activemq:activemq-all:5.5.1'
     compile 'org.apache.activemq:activemq-pool:5.5.1';
@@ -32,12 +33,8 @@ dependencies {
     compile 'org.codehaus.castor:castor:1.3.3';
     compile 'org.codehaus.castor:castor-xml:1.3.3';
 
-    compile 'axis:axis:1.4';
-    compile 'org.apache.axis:axis-jaxrpc:1.4';
-    compile 'org.apache.axis:axis:1.4';
-    compile'wsdl4j:wsdl4j:1.6.3';
-    compile 'axis:axis-wsdl4j:1.5.1';
-    compile files('libs/dot_net_webservice_stub.jar', 'libs/orderservice_stub.jar');
+    compile 'org.jvnet.jax-ws-commons.spring:jaxws-spring:1.9';
+    compile files('libs/ojdbc6.jar');
 }
 
 task printProperties << {

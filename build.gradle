@@ -6,7 +6,7 @@ allprojects {
 	repositories {
 		mavenCentral()
 	}
-	sourceCompatibility = 6;
+	sourceCompatibility = 7;
 
 }
 
@@ -55,9 +55,13 @@ task createDB << {
     sqlString = new File(sqlFilePath).text
     sql.execute(sqlString);
 
+    sql = Sql.newInstance(props.get('oracle.url'), props.get('oracle.username'), props.get('oracle.password'), 'oracle.jdbc.OracleDriver');
+    sqlFilePath = "world.sql"
+    sqlString = new File(sqlFilePath).text
+    sql.execute(sqlString);
+
     sql = Sql.newInstance(props.get('mysql.url') +'&allowMultiQueries=true', props.get('mysql.username'), props.get('mysql.password'), 'com.mysql.jdbc.Driver');
     sqlFilePath = "zips.sql"
     sqlString = new File(sqlFilePath).text
     sql.execute(sqlString);
 }
-

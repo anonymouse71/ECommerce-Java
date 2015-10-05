@@ -1,15 +1,10 @@
 package com.appdynamicspilot.sqs;
 
-import com.amazonaws.services.sqs.*;
-import com.amazonaws.services.sqs.model.*;
-import com.amazonaws.auth.*;
-import java.util.Map;
-import javax.xml.bind.*;
-
-import java.io.*;
-
 import com.appdynamicspilot.model.FulfillmentOrder;
 
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.Marshaller;
+import java.io.StringWriter;
 import java.util.logging.Logger;
 
 /**
@@ -18,6 +13,7 @@ import java.util.logging.Logger;
 public class SQSFullfilmentSender extends AbstractSQSClient {
 
     private static Logger logger = Logger.getLogger(SQSFullfilmentSender.class.getName());
+
 
     public SQSFullfilmentSender()  {
         super();
@@ -44,6 +40,5 @@ public class SQSFullfilmentSender extends AbstractSQSClient {
         return writer.toString();
 
     }
-
 
 }

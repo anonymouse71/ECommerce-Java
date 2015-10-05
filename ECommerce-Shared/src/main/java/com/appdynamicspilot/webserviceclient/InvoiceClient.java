@@ -59,26 +59,10 @@ import javax.xml.namespace.QName;
 				String result = (String)call.invoke("DoWork", new Object[]{""});
 				System.out.println("==========.net Webservice successfully called==============");
 				
-				System.out.println(result);   
+				System.out.println(result);
 
-				return result;      
-			
-			  /*
-			   
-			   	  
-			   String endpoint = "http://192.168.1.8:8088/Invoice_Service.asmx?wsdl";
-			   System.out.println("EndPoint : "+endpoint);
-			  
-			   Service  service = new Service();
-			   Call     call    = (Call) service.createCall();
+				return result;
 
-			   call.setTargetEndpointAddress( new java.net.URL(endpoint) );
-			   call.setOperationName( "GenerateInvoice" );
-			   call.addParameter( "orderDetailList", XMLType.XSD_ANYTYPE, ParameterMode.IN );
-			   call.setReturnType( XMLType.XSD_STRING );
-					 
-			   System.out.println("");
-				*/ 
        } catch (Exception e) {
 			System.err.println(e.toString());
 			return null;

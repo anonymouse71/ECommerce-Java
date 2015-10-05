@@ -1,5 +1,9 @@
 package com.appdynamicspilot.restv2;
 
+/**
+ * Created by swetha.ravichandran on 7/15/15.
+ */
+
 import com.appdynamicspilot.model.User;
 import com.appdynamicspilot.service.UserService;
 import com.appdynamicspilot.util.SpringContext;
@@ -16,9 +20,10 @@ import java.util.List;
 /**
  * Created by swetha.ravichandran on 7/15/15.
  */
+
 @Path("/json/user")
 public class Users {
-    private static final Logger log = Logger.getLogger(Users.class.getName());
+    private final static Logger log = Logger.getLogger(Users.class.getName());
 
     /**
      * Gets userService bean

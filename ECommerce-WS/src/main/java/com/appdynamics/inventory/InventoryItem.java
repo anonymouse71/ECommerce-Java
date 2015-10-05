@@ -18,10 +18,6 @@ package com.appdynamics.inventory;
 
 import javax.persistence.*;
 
-/**
- * Created by aleftik on 10/12/14.
- */
-
 @Entity
 @Table(name="item")
 public class InventoryItem {
@@ -29,7 +25,7 @@ public class InventoryItem {
     @GeneratedValue( strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Long quantity;
+    private int quantity;
 
     public Long getId() {
         return id;
@@ -39,11 +35,11 @@ public class InventoryItem {
         this.id = id;
     }
 
-    public Long getQuantity() {
+    public Integer getQuantity() {
         return quantity;
     }
 
-    public void setQuantity(Long quantity) {
+    public void setQuantity(Integer quantity) {
         this.quantity = quantity;
     }
 }

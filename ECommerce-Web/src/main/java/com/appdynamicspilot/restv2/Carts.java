@@ -18,12 +18,16 @@ package com.appdynamicspilot.restv2;
 
 import com.appdynamicspilot.jms.MessageProducer;
 import com.appdynamicspilot.model.Cart;
+import com.appdynamicspilot.model.Fault;
 import com.appdynamicspilot.model.Item;
 import com.appdynamicspilot.model.User;
 import com.appdynamicspilot.service.CartService;
+import com.appdynamicspilot.service.FaultService;
 import com.appdynamicspilot.service.UserService;
+import com.appdynamicspilot.util.FaultUtils;
 import com.appdynamicspilot.util.SpringContext;
 import com.google.gson.Gson;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 import javax.annotation.Resource;
@@ -32,17 +36,25 @@ import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
+import java.util.UUID;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Path("/json/cart")
 public class Carts {
     private static final Logger log = Logger.getLogger(Carts.class.getName());
 
-    // Not used in rest
+    /**
+     * JMS queues
+     */
     @Resource(name = "OrderQueue")
     private Queue orderQueue;
     private MessageProducer messageProducer;
+
 
     public MessageProducer getMessageProducer() {
         return (MessageProducer) SpringContext.getBean("messageProducer");
@@ -71,6 +83,15 @@ public class Carts {
     }
 
     /**
+     * Gets FaultService bean
+     *
+     * @return FaultService
+     */
+    public FaultService getFIBugService() {
+        return (FaultService) SpringContext.getBean("faultService");
+    }
+
+    /**
      * Saves Item to cart
      * Creates a session and inserts records to mysql tables "cart" & "cart-item" as well
      *
@@ -83,30 +104,39 @@ public class Carts {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public String saveItemInCart(@Context HttpServletRequest req, @PathParam("id") Long id) throws Exception {
+
         Gson gsonSaveItemsToCart = new Gson();
         CartResponse response = new CartResponse();
         try {
+            String username = req.getHeader("USERNAME");
             Item item = getCartService().getItemPersistence().getItemByID(id);
             User user = (User) req.getSession(true).getAttribute("USER");
+
             if (user == null) {
-                String username = req.getHeader("USERNAME");
                 user = getUserService().getMemberByLoginName(username);
             }
+
+            /**
+             * Save or Update Item in Cart
+             */
             Cart cart = getCartService().getCartByUser(user.getId());
             if (cart == null) {
                 cart = new Cart();
                 cart.setUser(user);
                 cart.addItem(item);
                 getCartService().saveItemInCart(cart);
-            } else {
+            } else if (cart != null && !cart.findItem(item)) {
                 cart.setUser(user);
                 cart.addItem(item);
                 getCartService().updateItemInCart(cart);
+            } else {
+                log.info("item already exists " + username + " " + id);
             }
             response.setCartSize(String.valueOf(cart.getCartSize()));
             response.setCartTotal(cart.getCartTotal());
+
         } catch (Exception e) {
-            log.error(e);
+            log.error(e.getMessage());
         }
         return gsonSaveItemsToCart.toJson(response);
     }
@@ -150,7 +180,7 @@ public class Carts {
      * Deletes the item from mysqsl tables "cart" & "cart-item" as well
      *
      * @param req
-     * @param item id
+     * @param id
      * @return plain text
      * @throws Exception
      */
@@ -162,12 +192,11 @@ public class Carts {
             String username = req.getHeader("username");
             if (username != null) {
                 Integer iReturnValue = getCartService().deleteItemInCartV2(username, id);
-                log.info("iReturnValue" + iReturnValue);
-                if( iReturnValue == 0)
+                if (iReturnValue == 0)
                     return "Deleted item id " + id + " Successfully.";
-                else if( iReturnValue == 2)
+                else if (iReturnValue == 2)
                     return "There is no item id " + id + " in the cart.";
-                else if(iReturnValue == 1)
+                else if (iReturnValue == 1)
                     return "Cart is empty.";
             }
         } catch (Exception e) {
@@ -188,53 +217,54 @@ public class Carts {
     @GET
     @Produces(MediaType.TEXT_PLAIN)
     public String checkout(@Context HttpServletRequest req) throws Exception {
-            User user = (User) req.getSession(true).getAttribute("USER");
-            if (user == null) {
-                String username = req.getHeader("USERNAME");
-                if (username == null) {
-                    return "User not logged in. Nothing to checkout.";
-                } else {
-                    user = getUserService().getMemberByLoginName(username);
-                }
+        User user = (User) req.getSession(true).getAttribute("USER");
+        String username = req.getHeader("USERNAME");
+        if (user == null) {
+            if (username == null) {
+                return "User not logged in. Nothing to checkout.";
+            } else {
+                user = getUserService().getMemberByLoginName(username);
             }
-            Cart cart = getCartService().getCartByUser(user.getId());
-            if (cart == null) {
-                return "Nothing In cart to checkout.";
-            }
+        }
+        Cart cart = getCartService().getCartByUser(user.getId());
+        if (cart == null) {
+            return "Nothing In cart to checkout.";
+        }
 
-            List<Item> items = cart.getItems();
-            List<Long> orderIdList = new ArrayList<Long>();
-            String orderIds = "";
-            boolean outOfStock = false;
-            try {
-                for (Item item : items) {
-                    Long orderId = getCartService().checkOut(item.getId(), 1);
-                    if (item.getId() != 0) {
-                        orderIds = ", " + orderId;
-                    }
-                    if (orderId == 0) {
-                        outOfStock = true;
-                    }
-                    orderIdList.add(orderId);
+        List<Item> items = cart.getItems();
+        List<Long> orderIdList = new ArrayList<Long>();
+        String orderIds = "";
+        boolean outOfStock = false;
+        try {
+            for (Item item : items) {
+                Long orderId = getCartService().checkOut(item.getId(), 1);
+                if (item.getId() != 0) {
+                    orderIds = ", " + orderId;
                 }
-                orderIds = orderIds.substring(2);
-                log.info("orderIds : " + orderIds);
-                if (orderIdList.size() > 0 && !outOfStock) {
-                    getMessageProducer().sendMessageWithOrderId(orderIds, user.getEmail());
-                    getMessageProducer().sendTextMessageWithOrderId();
-                    //Removing items from cart, if success
-                    getCartService().deleteCartItems(user.getId());
-                    return "Total amount is $" + cart.getCartTotal() + " Order ID(s) for your order(s) : " + orderIds;
-                } else {
-                    if (getMessageProducer() != null) {
-                        getMessageProducer().sendMessageWithOrderId(orderIds, user.getEmail());
-                    }
-                    return "Order not created as one or more items in your cart were out of stock. Total was $" + cart.getCartTotal();
+                if (orderId == 0) {
+                    outOfStock = true;
                 }
-            } catch (Exception ex) {
-                log.error(ex);
+                orderIdList.add(orderId);
             }
-            return "Error Processing Checkout";
+            orderIds = orderIds.substring(2);
+            log.info("orderIds : " + orderIds);
+            if (orderIdList.size() > 0 && !outOfStock) {
+                getMessageProducer().sendMessageWithOrderId(orderIds, user.getEmail());
+                getMessageProducer().sendTextMessageWithOrderId();
+                //Removing items from cart, if success
+                getCartService().deleteCartItems(user.getId());
+                log.info("Total amount is $" + cart.getCartTotal() + " Order ID(s) for your order(s) : " + orderIds);
+                return "Total amount is $" + cart.getCartTotal() + " Order ID(s) for your order(s) : " + orderIds;
+            } else {
+                if (getMessageProducer() != null) {
+                    getMessageProducer().sendMessageWithOrderId(orderIds, user.getEmail());
+                }
+                return "Order not created as one or more items in your cart were out of stock. Total was $" + cart.getCartTotal();
+            }
+        } catch (Exception ex) {
+            log.error(ex);
+        }
+        return "Error Processing Checkout";
     }
 
     //Not used in rest

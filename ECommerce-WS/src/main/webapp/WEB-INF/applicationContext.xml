@@ -1,75 +1,104 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
-       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xmlns:tx="http://www.springframework.org/schema/tx"
-       xmlns:context="http://www.springframework.org/schema/context"
-       xmlns:jdbc="http://www.springframework.org/schema/jdbc"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.0.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc-3.0.xsd">
-
-    <bean id="propertyConfigurer"
-          class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
-        <property name="locations">
-            <list>
-                <value>/WEB-INF/database.properties</value>
-            </list>
-        </property>
-    </bean>
-
-    <bean id="entityManagerFactory" class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
-        <property name="dataSource" ref="dataSource"/>
-        <property name="persistenceUnitName" value="pu"/>
-        <property name="jpaVendorAdapter">
-            <bean  class="org.springframework.orm.jpa.vendor.EclipseLinkJpaVendorAdapter">
-
-                <property name="showSql" value="true"/>
-                <property name="generateDdl" value="false"/>
-                <property name="database" value="MYSQL"/>
+	xmlns:ws="http://jax-ws.dev.java.net/spring/core" xmlns:wss="http://jax-ws.dev.java.net/spring/servlet"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="
+http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+http://jax-ws.dev.java.net/spring/core http://jax-ws.java.net/spring/core.xsd
+http://jax-ws.dev.java.net/spring/servlet http://jax-ws.java.net/spring/servlet.xsd">
 
 
-            </bean>
-        </property>
-    </bean>
+	<wss:binding url="/orderService">
+		<wss:service><!-- nested bean is of course fine -->
+			<ws:service bean="#orderService">
+				<ws:handlers>
+					<ref bean="orderServiceHandler" />
+				</ws:handlers>
+			</ws:service>
+		</wss:service>
+	</wss:binding>
 
-    <bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
-        <property name="driverClassName">
-            <value>${hibernate.connection.driver_class}</value>
-        </property>
-        <property name="url">
-            <value>${hibernate.connection.axisurl}</value>
-        </property>
-        <property name="username">
-            <value>${hibernate.connection.username}</value>
-        </property>
-        <property name="password">
-            <value>${hibernate.connection.password}</value>
-        </property>
+	<bean id="springContext" class="com.appdynamicspilot.util.SpringContext" />
 
-    </bean>
+	<bean id="orderService" class="com.appdynamics.inventory.OrderServiceImpl">
+		<property name="orderDao" ref="OrderDao" />
+	</bean>
 
-    <bean id="transactionManager" class="org.springframework.orm.jpa.JpaTransactionManager">
-        <property name="entityManagerFactory" ref="entityManagerFactory"/>
-        <property name="dataSource" ref="dataSource" />
-    </bean>
+	<bean id="OrderDao" class="com.appdynamics.inventory.OrderDaoImpl">
 
-    <bean id="orderDao"
-          class="com.appdynamics.inventory.OrderDaoImpl">
-        <property name="entityManagerFactory">
-            <ref bean="entityManagerFactory"/>
-        </property>
-        <property name="selectQuery">
-            <value>select item.id, now(), sleep(50/1000), now() from item where id = 1</value>
-        </property>
-    </bean>
+		<property name="entityManagerFactory">
+			<ref bean="entityManagerFactory" />
+		</property>
+		<property name="selectQuery">
+			<value>select item.id, now(), sleep(50/1000), now() from item where id = 1</value>
+		</property>
 
+	</bean>
 
-    <bean id="orderServiceTarget"
-          class="com.appdynamics.inventory.OrderService">
-        <property name="orderDao" ref="orderDao"/>
-    </bean>
-    <bean id="orderService" class="com.appdynamics.inventory.OrderWebservices">
-        <property name="orderDao" ref="orderDao"/>
-    </bean>
+	<bean id="orderServiceHandler" class="com.appdynamics.inventory.OrderServiceHandler" />
 
 
 
+	<!-- database properties file configurer -->
+	<bean id="propertyConfigurer"
+		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="locations">
+			<list>
+				<value>/WEB-INF/database.properties</value>
+			</list>
+		</property>
+	</bean>
+
+	<bean id="entityManagerFactory"
+		class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
+		<property name="dataSource" ref="dataSource" />
+		<property name="persistenceUnitName" value="pu" />
+		<property name="jpaVendorAdapter">
+			<bean
+				class="org.springframework.orm.jpa.vendor.EclipseLinkJpaVendorAdapter">
+
+				<property name="showSql" value="true" />
+				<property name="generateDdl" value="false" />
+				<property name="database" value="MYSQL" />
+
+
+			</bean>
+		</property>
+	</bean>
+
+
+	<bean id="dataSource"
+		class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+		<property name="driverClassName">
+			<value>${hibernate.connection.driver_class}</value>
+		</property>
+		<property name="url">
+			<value>${hibernate.connection.dburl}</value>
+		</property>
+		<property name="username">
+			<value>${hibernate.connection.username}</value>
+		</property>
+		<property name="password">
+			<value>${hibernate.connection.password}</value>
+		</property>
+
+	</bean>
+
+	<bean id="oraDataSource" class="org.springframework.jndi.JndiObjectFactoryBean">
+		<property name="jndiName">
+			<value>java:comp/env/jdbc/OracleECommerceDB</value>
+		</property>
+	</bean>
+
+	<bean id="queryExecutor" class="com.appdynamics.inventory.QueryExecutor">
+		<property name="oracleQueryString">
+			<value>${oracle.queryString}</value>
+		</property>
+		<property name="dataSource" ref="oraDataSource"/>
+	</bean>
+
+	<bean id="transactionManager" class="org.springframework.orm.jpa.JpaTransactionManager">
+		<property name="entityManagerFactory" ref="entityManagerFactory" />
+		<property name="dataSource" ref="dataSource" />
+	</bean>
 </beans>

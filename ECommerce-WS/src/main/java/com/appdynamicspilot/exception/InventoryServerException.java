@@ -18,6 +18,10 @@ package com.appdynamicspilot.exception;
 
 public class InventoryServerException extends Exception{
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private String errorMessage;
 	private Throwable cause;
 	
@@ -38,7 +42,4 @@ public class InventoryServerException extends Exception{
 	public void setCause(Throwable cause) {
 		this.cause = cause;
 	}
-	
-	
-	
 }

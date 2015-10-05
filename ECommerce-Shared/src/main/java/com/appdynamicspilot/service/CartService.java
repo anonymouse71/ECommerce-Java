@@ -115,7 +115,7 @@ public class CartService implements CartServiceInterface {
      * Deletes Items from cart v2
      *
      * @param username
-     * @param item     id
+     * @param id
      */
     public Integer deleteItemInCartV2(String username, Long id) {
         return cartPersistence.deleteItemInCartV2(username, id);

@@ -18,10 +18,16 @@ package com.appdynamicspilot.webserviceclient;
 
 import java.rmi.RemoteException;
 
+import com.appdynamics.inventory.OrderService;
 import org.apache.log4j.Logger;
 
-import com.appdynamics.inventory.OrderServicePortTypeProxy;
+//import com.appdynamics.inventory.OrderServicePortTypeProxy;
+import com.appdynamics.inventory.OrderRequest;
+import java.net.MalformedURLException;
+import java.net.URL;
 
+import javax.xml.namespace.QName;
+import javax.xml.ws.Service;
 
 public class SoapUtils {
 	private String axisUrl;
@@ -32,59 +38,85 @@ public class SoapUtils {
 		this.axisUrl = axisUrl;
 	}
 	
-	public Long raisePO(Long itemId,Integer quanity){
-		com.appdynamics.inventory.xsd.OrderRequest orderRequest=new com.appdynamics.inventory.xsd.OrderRequest();
-		OrderServicePortTypeProxy ospp=new OrderServicePortTypeProxy();
-		ospp.setEndpoint(axisUrl);
+	public Long raisePO(Long itemId,Integer quanity) {
+
+		OrderRequest orderRequest = new OrderRequest();
+
+		orderRequest.setItemId(itemId);
+		orderRequest.setQuantity(quanity);
 		try {
-            orderRequest.setItemId(itemId);
-            orderRequest.setQuantity(new Long(quanity));
-            log.debug("%%%%%%%%%%% Request time(ms) in AppdynamicsPilot SoapUtils before %%%%%%%:: " + System.currentTimeMillis());
-            Long orderId = ospp.createOrder(orderRequest);
-            log.debug("%%%%%%%%%%% Request time(ms) in AppdynamicsPilot SoapUtils after %%%%%%%:: " + System.currentTimeMillis());
-            log.debug("Order Id " + orderId.toString());
-            return orderId;
-        } catch (RemoteException rmi) {
-            //eat this to keep error count stable
-		} catch (Exception e) {
+
+			URL url = new URL("http://ws:8080/cart/orderService?wsdl");
+
+			QName qname = new QName("http://inventory.appdynamics.com/", "OrderServiceImplService");
+
+			Service service = Service.create(url, qname);
+
+			OrderService orderService = service.getPort(OrderService.class);
+
+			log.info(orderService.createOrder(orderRequest));
+			Long orderId = orderService.createOrder(orderRequest);
+			return orderId;
+		} catch (MalformedURLException e) {
 			e.printStackTrace();
-            //if you log an error it will start blowing up the error count
-		} 
+		}
 		return Long.valueOf(0);
 	}
+
+
 	/**
 	 * This API is for generating error at inventory server . CartAction.sendItem will specify the wrong wsdl url here
 	 * 
 	 */
 	public Long raisePO(Long itemId,Integer quanity,String wsdlURL){
-		log.debug(">>>>>>>>>>>>>>>>>>>>>>>>>> trying with >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"+wsdlURL);
-		com.appdynamics.inventory.xsd.OrderRequest orderRequest=new com.appdynamics.inventory.xsd.OrderRequest();
-		OrderServicePortTypeProxy ospp=new OrderServicePortTypeProxy();
-		ospp.setEndpoint(wsdlURL);
+
+		wsdlURL = getAxisUrl();
+		OrderRequest orderRequest = new OrderRequest();
+
+		orderRequest.setItemId(itemId);
+		orderRequest.setQuantity(quanity);
 		try {
-			orderRequest.setItemId(itemId);
-			orderRequest.setQuantity(new Long(quanity));
-			log.debug("%%%%%%%%%%% Request time(ms) in AppdynamicsPilot SoapUtils before %%%%%%%:: " + System.currentTimeMillis());
-			Long orderId=ospp.createOrder(orderRequest);
-			log.debug("%%%%%%%%%%% Request time(ms) in AppdynamicsPilot SoapUtils after %%%%%%%:: " + System.currentTimeMillis());
-			log.debug("Order Id "+orderId.toString());
+
+			URL url = new URL(wsdlURL);
+
+			QName qname = new QName("http://inventory.appdynamics.com/", "OrderServiceImplService");
+
+			Service service = Service.create(url, qname);
+
+			OrderService orderService = service.getPort(OrderService.class);
+
+			log.info(orderService.createOrder(orderRequest));
+
+			Long orderId = orderService.createOrder(orderRequest);
 			return orderId;
-		} catch (RemoteException e) {
+		} catch (MalformedURLException e) {
 			e.printStackTrace();
 		}
+
+
 		return Long.valueOf(0);
 	}
 	public Long raiseJMSPO(){
-		com.appdynamics.inventory.xsd.OrderRequest orderRequest=new com.appdynamics.inventory.xsd.OrderRequest();
-		OrderServicePortTypeProxy ospp=new OrderServicePortTypeProxy();
-		ospp.setEndpoint(axisUrl);
+
+		OrderRequest orderRequest = new OrderRequest();
+
+		orderRequest.setItemId(5L);
+		orderRequest.setQuantity(1);
 		try {
-			orderRequest.setItemId(5L);
-			orderRequest.setQuantity(1L);
-			Long orderId=ospp.createOrder(orderRequest);
-			log.debug("Order Id "+orderId.toString());
+
+			URL url = new URL("http://ws:8080/cart/orderService?wsdl");
+
+			QName qname = new QName("http://inventory.appdynamics.com/", "OrderServiceImplService");
+
+			Service service = Service.create(url, qname);
+
+			OrderService orderService = service.getPort(OrderService.class);
+
+			log.info(orderService.createOrder(orderRequest));
+
+			Long orderId = orderService.createOrder(orderRequest);
 			return orderId;
-		} catch (RemoteException e) {
+		} catch (MalformedURLException e) {
 			e.printStackTrace();
 		}
 		return Long.valueOf(0);
