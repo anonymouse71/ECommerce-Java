@@ -79,19 +79,9 @@ public class customerSurvey {
     /**
      * Main method.
      *
-<<<<<<< HEAD
-     * @param args  not used
-     *
      */
+
     public static void main(String[] args) throws RuntimeException, IOException {
-=======
-     * @param args not used
-     */
-    public static void main(String[] args) throws RuntimeException, IOException {
-
-
-
->>>>>>> cxf_to_jaxws
         Properties prop = new Properties();
         String propFileName = "jms.properties";
 
@@ -110,12 +100,7 @@ public class customerSurvey {
 
         if (duration.trim().equalsIgnoreCase("forever")) {
             runForever = true;
-<<<<<<< HEAD
-        }
-        else {
-=======
         } else {
->>>>>>> cxf_to_jaxws
             if (duration.trim().matches("^[1-9]\\d*$")) {
                 try {
                     runDuration = Integer.parseInt(duration.trim());
@@ -142,18 +127,6 @@ public class customerSurvey {
             do {
                 Thread.sleep(runDuration * 60 * 1000);
             } while (runForever);
-<<<<<<< HEAD
-        }
-        catch (JMSException | InterruptedException e) {
-            if (e instanceof JMSException)
-                System.err.println("Error Connecting: " + e.toString());
-        }
-        finally {
-            try {
-                connection.close();
-            }
-            catch (JMSException e) {
-=======
         } catch (JMSException | InterruptedException e) {
             if (e instanceof JMSException)
                 System.err.println("Error Connecting: " + e.toString());
@@ -161,7 +134,6 @@ public class customerSurvey {
             try {
                 connection.close();
             } catch (JMSException e) {
->>>>>>> cxf_to_jaxws
                 System.err.println("Error Disconnecting: " + e.toString());
             }
         }

@@ -41,10 +41,6 @@ public class UserService {
 		return userPersistence.getMemberByEmail(email);
 	}
 
-	public List<User> getAllUser() {
-		return userPersistence.getAllUser();
-	}
-
 	public UserPersistence getUserPersistence() {
 		return userPersistence;
 	}
