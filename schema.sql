@@ -149,7 +149,8 @@ INSERT INTO `user` VALUES
 (32, 'larry.ellison@foobar.com', 'oraclelarry', 'Larry Ellison', 'PLATINUM', 'Redwood City'),
 (33, 'jyoti.bansal@foobar.com', 'AppDynamics', 'Jyoti Bansal', 'PLATINUM', 'San Francisco'),
 (34, 'satya.nadella@foobar.com', 'SatyaMicrosoft', 'Satya Nadella', 'GOLD', 'Seattle'),
-(35, 'solomon@foobar.com', 'DockerSolomon', 'Solomon', 'SILVER', 'San Francisco');
+(35, 'solomon@foobar.com', 'DockerSolomon', 'Solomon', 'SILVER', 'San Francisco'),
+(36, 'aleftik', 'aleftik', 'aleftik', 'SILVER', 'San Francisco');
 
 UNLOCK TABLES;
 

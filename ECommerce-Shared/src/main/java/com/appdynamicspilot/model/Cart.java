@@ -49,7 +49,7 @@ public class Cart implements java.io.Serializable {
     @OneToMany(cascade = CascadeType.REFRESH, fetch = FetchType.LAZY)
     private List<Item> items = new ArrayList<Item>();
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY,cascade={CascadeType.REFRESH})
     @JoinColumn(name = "user_id")
     private User user;
 
