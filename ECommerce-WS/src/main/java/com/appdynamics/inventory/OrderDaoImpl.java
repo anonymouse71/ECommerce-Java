@@ -1,12 +1,12 @@
 package com.appdynamics.inventory;
 
 import com.appdynamicspilot.exception.InventoryServerException;
+import com.appdynamicspilot.service.OracleService;
 import com.appdynamicspilot.util.SpringContext;
 import org.apache.log4j.Logger;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
-import javax.persistence.Query;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Invocation;
@@ -15,9 +15,12 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.util.Random;
 
 public class OrderDaoImpl implements OrderDao {
+
+    private static final int DEFAULT_INTERNAL = 15;
+
+    private int interval = DEFAULT_INTERNAL;
 
     Client dbClient = ClientBuilder.newClient();
     WebTarget webTarget = dbClient
@@ -42,33 +45,14 @@ public class OrderDaoImpl implements OrderDao {
         this.selectQuery = selectQuery;
     }
 
+    public OracleService getOracleService() {
+        return (OracleService) SpringContext.getBean("oracleService");
+    }
+
     public Long createOrder(OrderRequest orderRequest) throws InventoryServerException {
         try {
-            EntityManager entityManager = getEntityManagerFactory().createEntityManager();
-            if (Math.random() >= 0.7) {
-                logger.error("Error in creating order " + orderRequest.getItemId());
-            }
-            if (entityManager != null) {
-                Query q = entityManager.createNativeQuery(this.selectQuery);
-                q.getResultList();
-                entityManager.close();
-            }
 
-            logger.info("Querying oracle db - inventory");
-            QueryExecutor oracleItems = (QueryExecutor) SpringContext.getBean("queryExecutor");
-            oracleItems.executeOracleQuery();
-
-            //Call to slow db calls
-            Random randInteger = new Random();
-            int randomizeSlowQuery = randInteger.nextInt(5);
-
-            if (randomizeSlowQuery == 0) {
-                this.slowQueryParam = true;
-                dbQuery(this.queryType, this.slowQueryParam, "oracle");
-            } else {
-                this.slowQueryParam = false;
-                dbQuery(this.queryType, this.slowQueryParam, "oracle");
-            }
+            getOracleService().createOracleConnection();
 
             if (orderRequest != null)
                 return processOrder(orderRequest);
@@ -98,13 +82,9 @@ public class OrderDaoImpl implements OrderDao {
                     if (order != null) {
                         order.setQuantity(orderRequest.getQuantity());
 
-                        logger.info("order stored is: " + order.getId() + " " + order.getQuantity() + " " + order.getCreatedOn());
-
                         entityManager.getTransaction().begin();
                         entityManager.persist(order);
                         entityManager.getTransaction().commit();
-
-                        Thread.sleep(500);
 
                         entityManager.getTransaction().begin();
                         entityManager.remove(order);
@@ -135,5 +115,28 @@ public class OrderDaoImpl implements OrderDao {
         Response response = invocationBuilder.get();
         logger.info("the response for the target is: " + response.getStatus());
         logger.info(response.readEntity(String.class));
+    }
+
+    /**
+     * @return the interval
+     */
+    public int getInterval() {
+        return interval;
+    }
+
+    /**
+     * @param interval the interval to set
+     */
+    public void setInterval(int interval) {
+        if (interval < 0) {
+            logger.warn("Invalid interval: " + interval + "; setting to default: " + DEFAULT_INTERNAL);
+            this.interval = DEFAULT_INTERNAL;
+        } else {
+            this.interval = interval;
+        }
+    }
+
+    protected boolean shouldFireSlow() {
+        return (Math.random() * 100) <= interval;
     }
 }

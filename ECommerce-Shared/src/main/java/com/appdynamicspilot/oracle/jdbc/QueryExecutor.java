@@ -14,12 +14,13 @@
  * limitations under the License.
  */
 
-package com.appdynamics.inventory;
+package com.appdynamicspilot.oracle.jdbc;
 
 import org.apache.log4j.Logger;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
@@ -43,13 +44,18 @@ public class QueryExecutor {
         this.dataSource = dataSource;
     }
 
-    public void executeOracleQuery() {
+    public Integer executeOracleQuery() {
         Connection connection = null;
         Statement stmt = null;
         try {
+            LOGGER.info("Oracle Query String :" +  getOracleQueryString());
             connection = getDataSource().getConnection();
             stmt = connection.createStatement();
-            stmt.execute(getOracleQueryString());
+            ResultSet rs = stmt.executeQuery(getOracleQueryString());
+            while (rs.next()) {
+                Integer output = rs.getInt("count");
+                return output;
+            }
         } catch (SQLException sqle) {
             LOGGER.error("This may be ignored in case of Oracle is not setup");
             LOGGER.error(sqle.getMessage());
@@ -57,5 +63,6 @@ public class QueryExecutor {
             if (connection != null) {try{connection.close();}catch (SQLException sqle) {}}
             if (stmt != null) {try{stmt.close();}catch (SQLException sqle) {}}
         }
+        return 0;
     }
 }
