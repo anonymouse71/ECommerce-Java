@@ -16,7 +16,7 @@
 <div class="mainContainer">
     <div class="innerContainer">
         <div class="header">
-            <div class="logo"><img src="images/logo.png"/></div>
+            <div class="logo"><img src="http://cdn.acme.com<%= request.getContextPath() %>/images/logo.png"/></div>
 
             <div class="topLogin"><a href="#">Sign In</a> <span class="topLogin1">or</span> <a href="#">Register</a>
             </div>
@@ -71,7 +71,7 @@
                             <table width="99%" height="232" border="0" cellpadding="0" cellspacing="0">
                                 <tr>
                                     <th height="137" colspan="2">
-                                        <div align="center"><img src="images/inbook1.gif" alt="Book1"/></div>
+                                        <div align="center"><img src="http://cdn.acme.com<%= request.getContextPath() %>/images/inbook1.gif" alt="Book1"/></div>
                                     </th>
                                 </tr>
 
@@ -96,7 +96,7 @@
 
                                 <tr>
                                     <th height="137" colspan="2">
-                                        <div align="center"><img src="images/ibook2.gif" alt="Book1" width="80"
+                                        <div align="center"><img src="http://cdn.acme.com<%= request.getContextPath() %>/images/ibook2.gif" alt="Book1" width="80"
                                                                  height="104"/></div>
                                     </th>
                                 </tr>
@@ -124,10 +124,10 @@
                     <div class="leftBottom" style="float:left;"></div>
                 </div>
                 <div class="midCright">
-                    <div class="banner"><img src="images/Banner.jpg"/></div>
+                    <div class="banner"><img src="http://cdn.acme.com<%= request.getContextPath() %>/images/Banner.jpg"/></div>
                     <div class="LContainer">
 
-                        <div class="lcontainerTop"><img src="images/logintop.gif"/></div>
+                        <div class="lcontainerTop"><img src="http://cdn.acme.com<%= request.getContextPath() %>/images/logintop.gif"/></div>
                         <div class="lcontainerCon">
                             <div class="logBoxContainer">
                                 <div class="loginBoxTop"></div>

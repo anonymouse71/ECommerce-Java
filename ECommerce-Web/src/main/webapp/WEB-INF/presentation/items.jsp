@@ -5,7 +5,7 @@
 <html>
 <head>
     <title>AppDynamics Pilot</title>
-    <link rel="stylesheet" href="css/appdynamics.css"/>
+    <link rel="stylesheet" href="http://cdn.acme.com<%= request.getContextPath() %>/css/appdynamics.css"/>
 </head>
 <body>
 
@@ -32,7 +32,7 @@
                                         <table width="99%" height="232" border="0" cellpadding="0" cellspacing="0">
                                             <tr>
                                                 <th height="137" colspan="2">
-                                                    <div align="center"><img src="images/The_Godfather-Mario_Puzo.jpg"
+                                                    <div align="center"><img src="http://cdn.acme.com<%= request.getContextPath() %>/images/The_Godfather-Mario_Puzo.jpg"
                                                                              alt="The Godfather"/></div>
                                                 </th>
                                             </tr>
@@ -59,7 +59,7 @@
                                             <tr>
                                                 <th height="137" colspan="2">
                                                     <div align="center"><img
-                                                            src="images/The_Lost_City_Of_Z-David_Grann.jpg"
+                                                            src="http://cdn.acme.com<%= request.getContextPath() %>/images/The_Lost_City_Of_Z-David_Grann.jpg"
                                                             alt="The Lost City Of Z" width="80" height="104"/></div>
                                                 </th>
                                             </tr>
@@ -86,9 +86,9 @@
 
                             </div>
                             <div class="midCright">
-                                <div class="banner"><img src="images/InnerBanner.jpg" width="751" height="123"/></div>
+                                <div class="banner"><img src="http://cdn.acme.com<%= request.getContextPath() %>/images/InnerBanner.jpg" width="751" height="123"/></div>
                                 <div class="LContainer">
-                                    <div class="lcontainerTop"><img src="images/logintop.gif"/></div>
+                                    <div class="lcontainerTop"><img src="http://cdn.acme.com<%= request.getContextPath() %>/images/logintop.gif"/></div>
                                     <div class="lcontainerCon">
 
                                         <div class="Latest">Latest Books</div>
@@ -96,10 +96,10 @@
                                         <div class="NewItems">
                                             <div class="latestbooks">
                                                 <ul>
-                                                    <li><img src="images/Farewell_To_Arms-Ernest_Hemingway.jpg"/></li>
-                                                    <li><img src="images/Atlas_Shrugged-Ayn_Rand.jpg"/></li>
+                                                    <li><img src="http://cdn.acme.com<%= request.getContextPath() %>/images/Farewell_To_Arms-Ernest_Hemingway.jpg"/></li>
+                                                    <li><img src="http://cdn.acme.com<%= request.getContextPath() %>/images/Atlas_Shrugged-Ayn_Rand.jpg"/></li>
                                                     <li style="background-image:none;"><img
-                                                            src="images/Jordan-Driven_From_Within.jpg"/></li>
+                                                            src="http://cdn.acme.com<%= request.getContextPath() %>/images/Jordan-Driven_From_Within.jpg"/></li>
 
                                                 </ul>
                                             </div>
@@ -125,7 +125,7 @@
                                                     </c:if>
                                                     <td>
                                                         <div class="itemBoxes">
-                                                            <img src='<c:out value="${item.imagePath}"/>' alt="book1"/>
+                                                            <img src='http://cdn.acme.com<%= request.getContextPath() %>/<c:out value="${item.imagePath}"/>' alt="book1"/>
 
                                                             <div class="itemDes" id="<c:out value='${item.id}'/>_title">
                                                                 <c:out value="${item.title}"/></div>

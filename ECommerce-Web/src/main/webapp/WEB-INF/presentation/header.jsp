@@ -16,7 +16,7 @@
                       onclick="logout();">Logout</span>
                                                                          5``
             </s:if>
-            <div class="logo"><img src="images/acmeonline.jpg"/></div>
+            <div class="logo"><img src="http://cdn.acme.com<%= request.getContextPath() %>/images/acmeonline.jpg"/></div>
 
             <%--
                         <div class="topLogin"><a href="#">Sign In</a> <span class="topLogin1">or</span> <a href="#">Register</a></div> --%>
