@@ -6,7 +6,7 @@
 <head>
 
     <title>Selected Items</title>
-    <link href="http://cdn.acme.com<%= request.getContextPath() %>/css/appdynamics.css" rel="stylesheet" type="text/css"/>
+    <link href="http://cdn-acme.appdynamics.com<%= request.getContextPath() %>/css/appdynamics.css" rel="stylesheet" type="text/css"/>
 </head>
 
 <body>
@@ -32,7 +32,7 @@
                                             <tr>
                                                 <th height="137" colspan="2">
                                                     <div align="center"><img
-                                                            src="http://cdn.acme.com<%= request.getContextPath() %>/images/The_Lost_City_Of_Z-David_Grann.jpg" alt="Book1"
+                                                            src="http://cdn-acme.appdynamics.com<%= request.getContextPath() %>/images/The_Lost_City_Of_Z-David_Grann.jpg" alt="Book1"
                                                             width="80" height="104"/></div>
                                                 </th>
                                             </tr>
@@ -58,7 +58,7 @@
                                         <table width="99%" height="232" border="0" cellpadding="0" cellspacing="0">
                                             <tr>
                                                 <th height="137" colspan="2">
-                                                    <div align="center"><img src="http://cdn.acme.com<%= request.getContextPath() %>/images/The_Godfather-Mario_Puzo.jpg"
+                                                    <div align="center"><img src="http://cdn-acme.appdynamics.com<%= request.getContextPath() %>/images/The_Godfather-Mario_Puzo.jpg"
                                                                              alt="The Godfather"/></div>
                                                 </th>
                                             </tr>
@@ -85,9 +85,9 @@
 
                             </div>
                             <div class="midCright">
-                                <div class="banner"><img src="http://cdn.acme.com<%= request.getContextPath() %>/images/InnerBanner.jpg" width="751" height="123"/></div>
+                                <div class="banner"><img src="http://cdn-acme.appdynamics.com<%= request.getContextPath() %>/images/InnerBanner.jpg" width="751" height="123"/></div>
                                 <div class="LContainer">
-                                    <div class="lcontainerTop"><img src="http://cdn.acme.com<%= request.getContextPath() %>/images/logintop.gif"/></div>
+                                    <div class="lcontainerTop"><img src="http://cdn-acme.appdynamics.com<%= request.getContextPath() %>/images/logintop.gif"/></div>
                                     <div class="lcontainerCon">
                                         <div class="selcetedItemcontainer">
 

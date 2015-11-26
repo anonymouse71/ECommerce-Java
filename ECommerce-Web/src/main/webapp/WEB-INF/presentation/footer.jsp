@@ -3,5 +3,5 @@
     <div class="innerContainer">
         <div class="footer"></div>
     </div>
-    <image id="fb" src="http://cdn.acme.com<%= request.getContextPath() %>/fb.png">
+    <image id="fb" src="http://cdn-acme.appdynamics.com<%= request.getContextPath() %>/fb.png">
 </div>
