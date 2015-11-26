@@ -38,6 +38,9 @@ import org.apache.struts2.interceptor.ServletResponseAware;
 import org.tempuri.ArrayOfOrderDetail;
 import org.tempuri.OrderDetail;
 
+import java.net.URL;
+import java.net.URLConnection;
+import java.io.BufferedInputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
@@ -217,7 +220,19 @@ public class CartAction extends ActionSupport implements Preparable,
             if (cart != null) {
                 cartList = cartService.getAllItemsByUser(user.getId());
                 log.info("The items associated with the user are: " + cartList.size());
-                cart.getCartTotal();
+		try {
+			URL url = new URL("http://cdn-acme.appdynamics.com/appdynamicspilot/images/The_Lost_City_Of_Z-David_Grann.jpg");
+			URLConnection conn = url.openConnection();
+			conn.setConnectTimeout(120);
+			conn.setReadTimeout(120);
+			new BufferedInputStream(conn.getInputStream());
+		                           
+                	cart.getCartTotal();
+		} catch (Exception e) {
+			// Failed order
+			request.setAttribute("msg", "Order not created as request to the supplier timed out");
+			return "FAILURE";
+		}
             } else {
                 cartList = Collections.EMPTY_LIST;
             }
