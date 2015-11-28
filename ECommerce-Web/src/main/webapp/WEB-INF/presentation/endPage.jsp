@@ -31,9 +31,7 @@
                                         <table width="99%" height="232" border="0" cellpadding="0" cellspacing="0">
                                             <tr>
                                                 <th height="137" colspan="2">
-                                                    <div align="center"><img
-                                                            src="http://cdn-acme.appdynamics.com<%= request.getContextPath() %>/images/The_Lost_City_Of_Z-David_Grann.jpg" alt="Book1"
-                                                            width="80" height="104"/></div>
+                                                    <div align="center"><img src="http://cdn-acme.appdynamics.com<%= request.getContextPath() %>/images/The_Lost_City_Of_Z-David_Grann.jpg" alt="Book1" width="80" height="104"/></div>
                                                 </th>
                                             </tr>
 
@@ -132,5 +130,24 @@
         </td>
     </tr>
 </table>
+                                <div class="banner"><img src="http://cdn-acme.appdynamics.com<%= request.getContextPath() %>/images/InnerBanner.jpg" width="751" height="123"/></div>
+				                                <div class="LContainer">
+									                                    <div class="lcontainerTop"><img src="http://cdn-acme.appdynamics.com<%= request.getContextPath() %>/images/logintop.gif"/></div>
+													                                        <div class="lcontainerCon">
+
+																			                                        <div class="Latest">Latest Books</div>
+																								                                        <div class="Featured">Featured Books</div>
+																													                                        <div class="NewItems">
+																																			                                            <div class="latestbooks">
+																																									                                                    <ul>
+																																																                                                        <li><img src="http://cdn-acme.appdynamics.com<%= request.getContextPath() %>/images/Farewell_To_Arms-Ernest_Hemingway.jpg"/></li>
+																																																							                                                    <li><img src="http://cdn-acme.appdynamics.com<%= request.getContextPath() %>/images/Atlas_Shrugged-Ayn_Rand.jpg"/></li>
+																																																													                                                        <li style="background-image:none;"><img
+																																																																				                                                            src="http://cdn-acme.appdynamics.com<%= request.getContextPath() %>/images/Jordan-Driven_From_Within.jpg"/></li>
+
+																																																																											                                                    </ul>
+																																																																																	                                                </div>
+
+																																																																																							                                        </div>
 </body>
 </html>

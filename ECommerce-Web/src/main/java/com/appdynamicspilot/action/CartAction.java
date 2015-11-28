@@ -221,11 +221,11 @@ public class CartAction extends ActionSupport implements Preparable,
                 cartList = cartService.getAllItemsByUser(user.getId());
                 log.info("The items associated with the user are: " + cartList.size());
 		try {
-			URL url = new URL("http://cdn-acme.appdynamics.com/appdynamicspilot/images/The_Lost_City_Of_Z-David_Grann.jpg");
-			URLConnection conn = url.openConnection();
-			conn.setConnectTimeout(120);
-			conn.setReadTimeout(120);
-			new BufferedInputStream(conn.getInputStream());
+			//URL url = new URL("http://cdn-acme.appdynamics.com/appdynamicspilot/images/The_Lost_City_Of_Z-David_Grann.jpg");
+			//URLConnection conn = url.openConnection();
+			//conn.setConnectTimeout(120);
+			//conn.setReadTimeout(120);
+			//new BufferedInputStream(conn.getInputStream());
 		                           
                 	cart.getCartTotal();
 		} catch (Exception e) {
