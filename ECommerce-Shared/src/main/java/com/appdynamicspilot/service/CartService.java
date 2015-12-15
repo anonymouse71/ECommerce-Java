@@ -132,6 +132,7 @@ public class CartService implements CartServiceInterface {
     public Long checkOut(Long itemId, Integer quantity) throws Exception {
         try {
             Long orderId = soapUtil.raisePO(itemId, quantity);
+
             return orderId;
         } catch (Exception e) {
             throw e;

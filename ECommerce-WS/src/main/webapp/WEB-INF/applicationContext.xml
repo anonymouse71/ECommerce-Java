@@ -20,6 +20,19 @@ http://jax-ws.dev.java.net/spring/servlet http://jax-ws.java.net/spring/servlet.
 
 	<bean id="springContext" class="com.appdynamicspilot.util.SpringContext" />
 
+	<bean id="oraclePersistence"
+		  class="com.appdynamicspilot.persistence.OraclePersistence">
+		<property name="entityManagerFactory" ref="entityManagerFactory"/>
+		<!-- percentage to hit the slow oracle database query -->
+		<property name="interval"><value type="java.lang.Integer">15</value></property>
+	</bean>
+
+	<bean id="oracleService"
+		  class="com.appdynamicspilot.service.OracleService">
+		<property name="oraclePersistence" ref="oraclePersistence"/>
+	</bean>
+
+
 	<bean id="orderService" class="com.appdynamics.inventory.OrderServiceImpl">
 		<property name="orderDao" ref="OrderDao" />
 	</bean>
@@ -90,7 +103,7 @@ http://jax-ws.dev.java.net/spring/servlet http://jax-ws.java.net/spring/servlet.
 		</property>
 	</bean>
 
-	<bean id="queryExecutor" class="com.appdynamics.inventory.QueryExecutor">
+	<bean id="queryExecutor" class="com.appdynamicspilot.oracle.jdbc.QueryExecutor">
 		<property name="oracleQueryString">
 			<value>${oracle.queryString}</value>
 		</property>
