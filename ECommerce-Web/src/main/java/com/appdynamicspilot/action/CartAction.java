@@ -94,7 +94,13 @@ public class CartAction extends ActionSupport implements Preparable,
     /*Adding selected items to the cart*/
     public String addToCart() {
 
-        log.info("In addToCart method, adding items to cart");
+		if (Math.random() <= 0.05) {
+			log.info("Number of items in inventory : 0");
+            log.error("Unable to add item to cart");
+        } else {
+			Integer itemCount = (int) Math.ceil(Math.random() * 100);
+        	log.info("Number of items in inventory : " + itemCount);
+		}		
 
         User user = (User) ActionContext.getContext().getSession()
                 .get("USER");

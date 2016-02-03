@@ -15,13 +15,11 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.util.Random;
+import java.util.*;
+import java.text.*;
 
 public class OrderDaoImpl implements OrderDao {
 
-    Client dbClient = ClientBuilder.newClient();
-    WebTarget webTarget = dbClient
-            .target("http://rds-dbwrapper:8080/rds-dbwrapper/query/execute");
     Invocation.Builder invocationBuilder = null;
     private static final Logger logger = Logger.getLogger(OrderDaoImpl.class);
     private EntityManagerFactory entityManagerFactory;
@@ -45,9 +43,7 @@ public class OrderDaoImpl implements OrderDao {
     public Long createOrder(OrderRequest orderRequest) throws InventoryServerException {
         try {
             EntityManager entityManager = getEntityManagerFactory().createEntityManager();
-            if (Math.random() >= 0.7) {
-                logger.error("Error in creating order " + orderRequest.getItemId());
-            }
+
             if (entityManager != null) {
                 Query q = entityManager.createNativeQuery(this.selectQuery);
                 q.getResultList();
@@ -55,20 +51,13 @@ public class OrderDaoImpl implements OrderDao {
             }
 
             logger.info("Querying oracle db - inventory");
-            QueryExecutor oracleItems = (QueryExecutor) SpringContext.getBean("queryExecutor");
-            oracleItems.executeOracleQuery();
-
-            //Call to slow db calls
-            Random randInteger = new Random();
-            int randomizeSlowQuery = randInteger.nextInt(5);
-
-            if (randomizeSlowQuery == 0) {
-                this.slowQueryParam = true;
-                dbQuery(this.queryType, this.slowQueryParam, "oracle");
-            } else {
-                this.slowQueryParam = false;
-                dbQuery(this.queryType, this.slowQueryParam, "oracle");
-            }
+        	Date date = new Date();
+        	SimpleDateFormat minutes = new SimpleDateFormat("m");
+        	String m = minutes.format(date);
+			if (Integer.parseInt(m) < 20 && Math.random() < .25) {
+            	QueryExecutor oracleItems = (QueryExecutor) SpringContext.getBean("queryExecutor");
+            	oracleItems.executeOracleQuery();
+        	}
 
             if (orderRequest != null)
                 return processOrder(orderRequest);
@@ -104,8 +93,6 @@ public class OrderDaoImpl implements OrderDao {
                         entityManager.persist(order);
                         entityManager.getTransaction().commit();
 
-                        Thread.sleep(500);
-
                         entityManager.getTransaction().begin();
                         entityManager.remove(order);
                         entityManager.getTransaction().commit();
@@ -127,13 +114,4 @@ public class OrderDaoImpl implements OrderDao {
         return new Long(0);
     }
 
-    public void dbQuery(String queryType, boolean slowQueryParam, String dbName) {
-        logger.info(queryType + " " + slowQueryParam + " " + dbName);
-        WebTarget queryWebTarget = webTarget.path(queryType + "/" + slowQueryParam + "/" + dbName);
-        invocationBuilder = queryWebTarget
-                .request(MediaType.APPLICATION_JSON);
-        Response response = invocationBuilder.get();
-        logger.info("the response for the target is: " + response.getStatus());
-        logger.info(response.readEntity(String.class));
-    }
 }
