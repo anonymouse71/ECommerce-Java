@@ -197,6 +197,11 @@ public class CartAction extends ActionSupport implements Preparable,
     /*Sending items from the cart to complete purchase called upon clicking the buy now button*/
     public String sendItems() {
         try {
+
+			if (Math.random() >= 0.85) {
+                log.error("Unable to create order");
+            }
+
             String fakeAmount = (String) ActionContext.getContext().get("orderAmount");
             User user = (User) ActionContext.getContext().getSession()
                     .get("USER");
