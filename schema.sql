@@ -150,7 +150,8 @@ INSERT INTO `user` VALUES
 (33, 'jyoti.bansal@hotmail.com', 'AppDynamics', 'Jyoti Bansal', 'PLATINUM', 'San Francisco'),
 (34, 'satya.nadella@yahoo.com', 'SatyaMicrosoft', 'Satya Nadella', 'GOLD', 'Seattle'),
 (35, 'solomon@aol.com', 'DockerSolomon', 'Solomon', 'SILVER', 'San Francisco'),
-(36, 'aleftik', 'aleftik', 'aleftik', 'SILVER', 'San Francisco');
+(36, 'aleftik', 'aleftik', 'aleftik', 'SILVER', 'San Francisco'),
+(37, 'test', 'appdynamics', 'appd', 'SILVER', 'San Francisco');
 
 UNLOCK TABLES;
 
