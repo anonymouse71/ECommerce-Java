@@ -28,7 +28,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-public class ImageServlet extends HttpServlet {
+public class FacebookServlet extends HttpServlet {
     private ServletContext context = null;
 
     public void init(ServletConfig config) {

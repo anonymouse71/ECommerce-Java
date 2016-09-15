@@ -91,21 +91,25 @@ public class CartAction extends ActionSupport implements Preparable,
         this.cartsList = cartsList;
     }
 
-    /*Adding selected items to the cart*/
     public String addToCart() {
+       return doAddToCart();
+    }
 
-		if (Math.random() <= 0.05) {
-			log.info("Number of items in inventory : 0");
-            log.error("Unable to add item to cart");
-        } else {
-			Integer itemCount = (int) Math.ceil(Math.random() * 100);
-        	log.info("Number of items in inventory : " + itemCount);
-		}		
+    /*Adding selected items to the cart*/
+    public String doAddToCart() {
+
+//		if (Math.random() <= 0.05) {
+//			log.info("Number of items in inventory : 0");
+//            log.error("Unable to add item to cart");
+//        } else {
+//			Integer itemCount = (int) Math.ceil(Math.random() * 100);
+//        	log.info("Number of items in inventory : " + itemCount);
+//		}
 
         User user = (User) ActionContext.getContext().getSession()
                 .get("USER");
-        if (ArgumentUtils.isNull(user))
-            return "LOGOUT";
+//        if (ArgumentUtils.isNull(user))
+//            return "LOGOUT";
         //cartService.deleteCartItems(user.getId());
         if ("".equals(selectedItemId))
             return "FAILURE";
@@ -114,65 +118,62 @@ public class CartAction extends ActionSupport implements Preparable,
         if (selectedItemId.charAt(0) == ',')
             selectedItemId = selectedItemId.substring(1);
         String[] selectedItemIds = selectedItemId.split(",");
-
-        /*Path 1 for Bug - Slow BTs*/
-        //this String load is passed to ArgumentUtils to make a boolean check for sleep.
-        String load = getServletRequest().getParameter("load");
-        log.debug("the load is: " + load);
-
-        //this parameter is processed to generate the delay/sleep time.
-        String delay = getServletRequest().getParameter("delay");
-        log.debug("the amount of delay is: " + delay);
-
-        String error = getServletRequest().getParameter("error");
-        log.debug("error param is: " + error);
-
-        getServletRequest().getSession().setAttribute("error", error);
-        boolean sleep = (!ArgumentUtils.isNullOrEmpty(load));
-        int sleepTime = 0;
-        if (sleep) {
-            try {
-                sleepTime = Integer.parseInt(delay);
-            } catch (NumberFormatException e) {
-
-                // eat exception in case of delay is wrong!!!
-            }
-        }
-        log.debug("The sleep time is: " + sleepTime + " sleep="
-                + sleep);
-        for (int i = 0; i < selectedItemIds.length; i++) {
-            if (sleep) {
-                log.debug("Sleep time is: " + i * sleepTime);
-                try {
-                    /**
-                     * Adding thread.sleep to demo state slowBTs. for every
-                     * transaction
-                     */
-                    Thread.sleep(i * sleepTime);
-                } catch (InterruptedException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
-            }
+//
+//        /*Path 1 for Bug - Slow BTs*/
+//        //this String load is passed to ArgumentUtils to make a boolean check for sleep.
+//        String load = getServletRequest().getParameter("load");
+////        log.debug("the load is: " + load);
+//
+//        //this parameter is processed to generate the delay/sleep time.
+//        String delay = getServletRequest().getParameter("delay");
+//        log.debug("the amount of delay is: " + delay);
+//
+//        String error = getServletRequest().getParameter("error");
+//        log.debug("error param is: " + error);
+//
+//        getServletRequest().getSession().setAttribute("error", error);
+//        boolean sleep = (!ArgumentUtils.isNullOrEmpty(load));
+//        int sleepTime = 0;
+//        if (sleep) {
+//            try {
+//                sleepTime = Integer.parseInt(delay);
+//            } catch (NumberFormatException e) {
+//
+//                // eat exception in case of delay is wrong!!!
+//            }
+//        }
+//        log.debug("The sleep time is: " + sleepTime + " sleep="
+//                + sleep);
+//        for (int i = 0; i < selectedItemIds.length; i++) {
+//            if (sleep) {
+//                log.debug("Sleep time is: " + i * sleepTime);
+//                try {
+//                    /**
+//                     * Adding thread.sleep to demo state slowBTs. for every
+//                     * transaction
+//                     */
+//                    Thread.sleep(i * sleepTime);
+//                } catch (InterruptedException e) {
+//                    // TODO Auto-generated catch block
+//                    e.printStackTrace();
+//                }
+//            }
             Item item = itemService.getItemByID(Long
-                    .parseLong(selectedItemIds[i]));
+                    .parseLong(selectedItemIds[0]));
             if (item != null) {
                 Cart cart = (Cart) getServletRequest().getSession().getAttribute("CART");
                 if (cart == null) {
                     cart = new Cart();
                 }
-                getServletRequest().getSession().setAttribute("CART", cart);
+
                 cart.addItem(item);
                 //trigger the mdic
                 cart.getCartTotal();
                 cart.setUser(user);
                 cartService.saveItemInCart(cart);
+                getServletRequest().getSession().setAttribute("CART", cart);
+                //getServletRequest().getSession().setAttribute("cartList", cart.getItems());
             }
-        }
-        List<Item> cartsList = cartService.getAllItemsByUser(user.getId());
-        log.info("the number of items in the cart are:" + cartsList.size());
-        request.setAttribute("cartsList", cartsList);
-        log.info("cartsList size" + cartsList.size());
         return "SUCCESS";
     }
 
@@ -184,18 +185,26 @@ public class CartAction extends ActionSupport implements Preparable,
             return "LOGOUT";
         }
 
-        cartService.deleteCartItems(user.getId());
+        cartService.deleteCartItems((Cart) getServletRequest().getSession().getAttribute("CART"));
         if ("".equals(xml))
             return "FAILURE";
         CastorUtil cu = new CastorUtil();
         cu.saveCartItems(xml);
-        List<Item> cartsList = cartService.getAllItemsByUser(user.getId());
-        request.setAttribute("cartsList", cartsList);
         return "sendItems";
     }
 
-    /*Sending items from the cart to complete purchase called upon clicking the buy now button*/
     public String sendItems() {
+
+        User user = (User) ActionContext.getContext().getSession()
+                .get("USER");
+        if (ArgumentUtils.isNull(user)) {
+            return "ORDER_DETAILS";
+        }
+        return doSendItems();
+    }
+
+    /*Sending items from the cart to complete purchase called upon clicking the buy now button*/
+    public String doSendItems() {
         try {
 
 			if (Math.random() >= 0.85) {
@@ -386,13 +395,8 @@ public class CartAction extends ActionSupport implements Preparable,
     //Removing all the items from the cart, either if the user logs out of the session or if the user completes the transaction
     public String removeAllItems() {
         Cart cart = (Cart) request.getSession().getAttribute("CART");
-        User user = (User) request.getSession().getAttribute("USER");
-        List<Item> items = cart.getItems();
-        {
-            for (Item item : items) {
-                cartService.deleteItemInCart(user.getEmail(), item.getId());
-            }
-        }
+        cart = cartService.deleteCartItems(cart);
+        request.getSession().setAttribute("CART",cart);
         return "SUCCESS";
     }
 

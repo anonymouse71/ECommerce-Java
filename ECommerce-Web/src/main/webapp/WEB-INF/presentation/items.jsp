@@ -128,7 +128,9 @@
                                                             <img src='<c:out value="${item.imagePath}"/>' alt="book1"/>
 
                                                             <div class="itemDes" id="<c:out value='${item.id}'/>_title">
-                                                                <c:out value="${item.title}"/></div>
+                                                               <a href="ViewDescription.action?id=<c:out value='${item.id}' />"> <c:out value="${item.title}"/></a></div>
+                                                            <div class="itemDes">
+
                                                             <div class="Cart">Add to Cart
                                                                 <input type="checkbox" id="selectedId" name="selectedId"
                                                                        value="<c:out value="${item.id}"/>"

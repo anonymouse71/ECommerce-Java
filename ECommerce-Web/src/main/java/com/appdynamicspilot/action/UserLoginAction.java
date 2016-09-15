@@ -21,6 +21,7 @@ import java.util.Map;
 import org.apache.log4j.Logger;
 
 import com.appdynamicspilot.model.User;
+import com.appdynamicspilot.model.Cart;
 import com.appdynamicspilot.service.UserService;
 import com.appdynamicspilot.util.ArgumentUtils;
 import com.opensymphony.xwork2.ActionContext;
@@ -43,6 +44,14 @@ public class UserLoginAction extends ActionSupport implements ServletRequestAwar
         if (userService.validateMember(loginName, password.trim())) {
             User user = userService.getMemberByLoginName(loginName);
             session.put("USER", user);
+            Cart cart = (Cart)session.get("CART");
+            if (cart != null) {
+                cart.setUser(user);
+                session.put("CART",cart);
+            }
+            if (request.getParameter("inCheckoutFlow") != null) {
+                return "CONTINUE_CHECKOUT";
+            }
             return "SUCCESS";
         }
         addActionError("Invalid username or password");

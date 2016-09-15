@@ -109,17 +109,21 @@
                                                 </div>
 
                                             </div>
-                                            
+
                                             <div class="selcetedItemBg">
                                                 <div class="Selectc">
                                                     <div class="Selecttext">
-                                                        <s:form name="itemsForm" action="ViewCart!sendItems.action"
+                                                        <s:form name="itemsForm" action="Checkout.action"
                                                                 theme="simple">
-                                                            <s:hidden name="username" value="%{#session.USER.email}"/>
 
                                                             <table width="100%" border="0" cellspacing="0"
                                                                    cellpadding="0">
-                                                                <c:forEach items="${cartsList}" var="item">
+                                                                <s:if test="hasActionErrors()">
+                                                                   <div class="errors">
+                                                                      <s:actionerror/>
+                                                                   </div>
+                                                                </s:if>
+                                                                <c:forEach items="${CART.items}" var="item">
                                                                     <tr>
                                                                         <td width="22%"><c:out value="${item.id}"/></td>
                                                                         <td width="58%"><c:out
@@ -129,17 +133,13 @@
 
                                                                     </tr>
                                                                 </c:forEach>
-
+                                                                Credit Card Number:<s:texfield name="storeOrder.ccnumber"/>
+                                                                Credit Card Type:<s:select key="stateOrder.cctype" list="${@com.appdynamicspilot.model.StoreOrder$CC_TYPE@values}" listKey="${@com.appdynamicspilot.model.StoreOrder$CC_TYPE@values" listValue="stateOrder.cctype" />
                                                             </table>
                                                             <br/><br/>
-                                                            <s:checkbox name="checkMe" label="Get the Invoice ID"/><font
-                                                                color="#3F3C3C"><b>Get Invoice ID</b></font>
-                                                            <br/>
-
                                                             <div>
                                                                 <s:submit name="submitValue" cssClass="submit"
-                                                                          key="label.buynow"/>
-                                                                <input type="button" value="Delete from Cart" onclick="document.location.href='./ViewCart!removeAllItems.action'">
+                                                                          key="label.checkout"/>
                                                             </div>
                                                         </s:form>
                                                     </div>
