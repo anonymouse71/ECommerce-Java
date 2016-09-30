@@ -7,9 +7,9 @@
 
 <ui:composition template="checkout_template.xhtml">
     <ui:define name="checkout_content">
-        <h:form>
+        <h:form id="checkout">
             <ui:fragment rendered="#{shoppingCartController.cart.cartSize gt 0}">
-                <p:commandButton value="Checkout" action="#{shoppingCartController.checkout()}" onclick="submit();"
+                <p:commandButton id="checkoutButton" value="Checkout" action="#{shoppingCartController.checkout()}" onclick="submit();"
                                  ajax="false"/>
             </ui:fragment>
         </h:form>

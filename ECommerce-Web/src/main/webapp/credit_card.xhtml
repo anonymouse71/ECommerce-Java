@@ -8,7 +8,7 @@
 <ui:composition template="checkout_template.xhtml">
     <ui:define name="checkout_content">
         <p:messages/>
-        <h:form>
+        <h:form id="cc">
             <p:panel columns="2" id="matchGrid" cellpadding="5" header="Enter Credit Card Details">
                 <p:messages id="messages" showDetail="true" autoUpdate="true" />
                 <h:panelGrid columns="2">
@@ -22,7 +22,7 @@
                 </h:panelGrid>
             </p:panel>
 
-            <p:commandButton action="#{shoppingCartController.verifyCreditCard()}" update="matchGrid" value="Continue Checkout" ajax="false" />
+            <p:commandButton id="creditCartVerifyButton" action="#{shoppingCartController.verifyCreditCard()}" update="matchGrid" value="Continue Checkout" ajax="false" />
         </h:form>
     </ui:define>
 

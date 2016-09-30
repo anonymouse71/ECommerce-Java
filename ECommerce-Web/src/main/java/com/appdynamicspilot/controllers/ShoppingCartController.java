@@ -25,9 +25,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import org.springframework.context.annotation.Scope;
 
 @Named
 @SessionScoped
+@Scope("session")
 public class ShoppingCartController implements Serializable {
     private static final Logger log = Logger.getLogger(ShoppingCartController.class);
 
@@ -255,7 +257,7 @@ public class ShoppingCartController implements Serializable {
         }
 
 
-//        invoiceId = generateInvoice(arrayOfOrderDetail);
+
 
         log.debug("ORDERS ARE " + orderIds);
         if (!ArgumentUtils.isNullOrEmpty(orderIds) && outOfStock == 0) {
@@ -283,7 +285,6 @@ public class ShoppingCartController implements Serializable {
         //creating an empty new cart instance and associating it with the user.
         cart = new Cart();
         cart.setUser(getUser());
-        ActionContext.getContext().getSession().put("CART", cart);
     }
 
 }

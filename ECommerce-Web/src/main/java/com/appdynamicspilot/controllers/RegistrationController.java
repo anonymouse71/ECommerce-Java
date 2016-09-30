@@ -20,12 +20,14 @@ import javax.validation.ConstraintViolationException;
 import java.io.Serializable;
 import java.util.Map;
 
+import org.springframework.context.annotation.Scope;
 
 /**
  * @author Adam Leftik
  */
 @Named("registrationController")
 @SessionScoped
+@Scope("session")
 public class RegistrationController implements Serializable {
 
     @Inject

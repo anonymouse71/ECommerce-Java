@@ -5,7 +5,7 @@
 <body>
 <ui:composition template="template.xhtml">
     <ui:define name="content">
-        <h:form>
+        <h:form id="login">
             <p:panel columns="2" id="matchGrid" cellpadding="5" header="Login">
                 <p:messages id="messages" showDetail="true" autoUpdate="true" />
                 <h:panelGrid columns="2">
@@ -17,7 +17,7 @@
                 </h:panelGrid>
             </p:panel>
 
-            <p:commandButton action="#{registrationController.login}" update="matchGrid" value="Login" ajax="false" />
+            <p:commandButton id="loginButton" action="#{registrationController.login}" update="matchGrid" value="Login" ajax="false" />
         </h:form>
         <div style="width: 100%; height: 20px; border-bottom: 1px solid black; text-align: center">
         <span style="font-size: 25px; background-color: #F3F5F6; padding: 0 10px;">
@@ -26,7 +26,7 @@
         </div>
         <center>
             <br/>
-        <p:button type="button" outcome="register.xhtml" value="Create an new account" icon="ui-icon-extlink" />
+        <p:button id="registerButton" type="button" outcome="register.xhtml" value="Create an new account" icon="ui-icon-extlink" />
         </center>
     </ui:define>
 </ui:composition>

@@ -5,7 +5,7 @@
 <body>
 <ui:composition template="checkout_template.xhtml">
     <ui:define name="checkout_content">
-        <h:form>
+        <h:form id="address">
             <p:panel columns="2" id="matchGrid" cellpadding="5" header="Shipping Address">
                 <p:messages/>
                 <h:panelGrid columns="2">
@@ -36,7 +36,7 @@
                 </h:panelGrid>
             </p:panel>
 
-            <p:commandButton action="#{shoppingCartController.verifyAddress()}" value="Continue Checkout" onclick="submit();" ajax="false"/>
+            <p:commandButton id="addressButton" action="#{shoppingCartController.verifyAddress()}" value="Continue Checkout" onclick="submit();" ajax="false"/>
         </h:form>
     </ui:define>
 </ui:composition>
